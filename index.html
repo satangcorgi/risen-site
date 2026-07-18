@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Risen. The alarm you answer with your Bible.</title>
+<meta name="description" content="Risen rings until you photograph today's verse from a real Bible, then hands you a prayer written for that morning. Coming to the App Store, Easter Sunday 2026.">
+<meta property="og:title" content="Risen. The alarm you answer with your Bible.">
+<meta property="og:description" content="It rings until you photograph today's verse from a real Bible. Then comes a prayer written for that morning.">
+<meta property="og:image" content="https://satangcorgi.github.io/risen-site/assets/01-alarm.jpg">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌅</text></svg>">
+<style>
+@font-face{font-family:'Instrument Serif';src:url('fonts/instrument-regular.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:'Instrument Serif';src:url('fonts/instrument-italic.woff2') format('woff2');font-weight:400;font-style:italic;font-display:swap}
+@font-face{font-family:'DM Sans';src:url('fonts/dmsans-latin.woff2') format('woff2');font-weight:100 1000;font-style:normal;font-display:swap}
+
+:root{
+  --night:#0A1122;
+  --dawn:#60A5FA;
+  --sky-pale:#EFF6FF;
+  --paper:#FDFDFC;
+  --ink:#111827;
+  --ink-soft:#4B5563;
+  --ground:#4ADE80;
+  --ground-deep:#16A34A;
+  --radius:20px;
+  --serif:'Instrument Serif',Georgia,serif;
+  --sans:'DM Sans',-apple-system,'SF Pro Rounded',system-ui,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased;overflow-x:clip}
+img{max-width:100%;display:block}
+a{color:inherit}
+::selection{background:var(--dawn);color:#fff}
+.wrap{max-width:1200px;margin:0 auto;padding:0 24px}
+h2{font-family:var(--serif);font-weight:400;font-size:clamp(34px,5vw,58px);line-height:1.08;letter-spacing:-.01em}
+.sub{color:var(--ink-soft);font-size:18px;line-height:1.6;max-width:56ch}
+
+/* ================= ACT SCENES (scroll = time) ================= */
+.act{position:relative}
+.scene{position:sticky;top:0;height:100dvh;overflow:hidden}
+
+/* ---- Act 1: before sunrise ---- */
+.act-dawn{height:280vh;background:var(--night)}
+.sky-night{position:absolute;inset:0;background:linear-gradient(180deg,#060B18 0%,#0A1122 45%,#16223D 80%,#26375C 100%)}
+.stars{position:absolute;inset:0;opacity:.9;background-image:
+  radial-gradient(1px 1px at 12% 22%,rgba(255,255,255,.8),transparent 50%),
+  radial-gradient(1px 1px at 78% 14%,rgba(255,255,255,.6),transparent 50%),
+  radial-gradient(1.5px 1.5px at 55% 8%,rgba(255,255,255,.7),transparent 50%),
+  radial-gradient(1px 1px at 32% 41%,rgba(255,255,255,.5),transparent 50%),
+  radial-gradient(1px 1px at 90% 33%,rgba(255,255,255,.55),transparent 50%),
+  radial-gradient(1.5px 1.5px at 66% 27%,rgba(255,255,255,.45),transparent 50%),
+  radial-gradient(1px 1px at 22% 9%,rgba(255,255,255,.65),transparent 50%),
+  radial-gradient(1px 1px at 44% 18%,rgba(255,255,255,.4),transparent 50%)}
+.sky-morning{position:absolute;inset:0;opacity:0;background:linear-gradient(180deg,#4F79BE 0%,#7FA6DE 48%,#B7CFF0 84%,#D9E7FA 100%)}
+.sun{position:absolute;left:50%;bottom:-30vh;width:60vmin;height:60vmin;transform:translate(-50%,70vh);border-radius:50%;
+  background:radial-gradient(circle,#FFF7DB 0%,#FFE9A8 18%,rgba(255,214,130,.55) 38%,rgba(96,165,250,0) 70%);filter:blur(2px)}
+.sun-halo{position:absolute;left:50%;bottom:-64vh;width:170vmin;height:170vmin;transform:translate(-50%,70vh);border-radius:50%;
+  background:radial-gradient(circle,rgba(255,226,160,.4) 0%,rgba(147,197,253,.25) 40%,transparent 68%)}
+.horizon{position:absolute;left:0;right:0;bottom:0;height:15vh;background:linear-gradient(0deg,#182642 0%,rgba(24,38,66,.6) 50%,transparent 100%)}
+.dawn-word{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:0 24px}
+.dawn-word h1{font-family:var(--serif);font-weight:400;color:#F8FAFF;font-size:clamp(72px,15vw,180px);line-height:1}
+.dawn-word p{margin-top:16px;color:#B9CCF2;font-size:clamp(15px,1.6vw,19px)}
+.dawn-word .ref{display:block;margin-top:10px;font-size:13px;color:#7E93BF;letter-spacing:.14em;text-transform:uppercase}
+
+/* ---- Act 2: it rings ---- */
+.act-ring{height:300vh;background:#243A63}
+.ring-bg{position:absolute;inset:-40px;background:url('assets/dawn-room.jpg') center/cover;filter:blur(34px) brightness(.55) saturate(.95);transform:scale(1.1)}
+.ring-tint{position:absolute;inset:0;background:linear-gradient(180deg,rgba(31,48,84,.62),rgba(26,40,70,.3) 55%,rgba(16,26,48,.62))}
+.ring-stage{position:absolute;inset:0;display:grid;place-items:center}
+.ring-phone{position:relative;width:min(300px,64vw)}
+.halo{position:absolute;inset:-14%;border:2px solid rgba(147,197,253,.5);border-radius:64px;opacity:0;pointer-events:none}
+.halo.h2{inset:-26%;border-color:rgba(147,197,253,.32);border-radius:80px}
+.halo.h3{inset:-40%;border-color:rgba(147,197,253,.18);border-radius:96px}
+.pulsing .halo{animation:halo 2.2s ease-out infinite}
+.pulsing .halo.h2{animation-delay:.35s}
+.pulsing .halo.h3{animation-delay:.7s}
+@keyframes halo{0%{opacity:0;transform:scale(.86)}30%{opacity:1}100%{opacity:0;transform:scale(1.08)}}
+.ring-copy{position:absolute;left:0;right:0;text-align:center;color:#EAF1FD;padding:0 24px}
+.ring-copy.rc1{top:11vh}
+.ring-copy.rc2{bottom:9vh}
+.ring-copy h2{color:#F4F8FF;font-size:clamp(38px,6vw,66px)}
+.ring-copy p{margin-top:10px;color:#AFC4E8;font-size:clamp(15px,1.8vw,19px)}
+
+/* ---- Act 3: the scan ---- */
+.act-scan{height:340vh;background:#0E1524}
+.scan-bg{position:absolute;inset:0;overflow:hidden}
+.scan-bg img{position:absolute;width:145%;max-width:none;height:145%;left:-22.5%;top:-22.5%;object-fit:cover;transform-origin:center}
+.scan-dim{position:absolute;inset:0;background:rgba(8,12,22,.42);transition:background .5s ease}
+.locked .scan-dim{background:rgba(8,14,20,.18)}
+.finder{position:absolute;inset:0;display:grid;place-items:center}
+.brackets{position:relative;width:min(560px,82vw);aspect-ratio:14/9}
+.brackets i{position:absolute;width:56px;height:56px;border:3.5px solid rgba(255,255,255,.92);transition:border-color .4s ease}
+.brackets i:nth-child(1){top:0;left:0;border-right:0;border-bottom:0;border-radius:14px 0 0 0}
+.brackets i:nth-child(2){top:0;right:0;border-left:0;border-bottom:0;border-radius:0 14px 0 0}
+.brackets i:nth-child(3){bottom:0;left:0;border-right:0;border-top:0;border-radius:0 0 0 14px}
+.brackets i:nth-child(4){bottom:0;right:0;border-left:0;border-top:0;border-radius:0 0 14px 0}
+.locked .brackets i{border-color:#4ADE80}
+.scanline{position:absolute;left:6%;right:6%;top:12%;height:2px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.85),transparent);opacity:.9;animation:scanline 2.6s ease-in-out infinite}
+.locked .scanline{display:none}
+@keyframes scanline{0%,100%{top:12%}50%{top:86%}}
+.scan-pill{position:absolute;top:9vh;left:50%;transform:translateX(-50%);background:rgba(10,15,26,.72);backdrop-filter:blur(8px);color:#fff;border-radius:999px;padding:12px 22px;font-weight:700;font-size:15px;letter-spacing:.02em;white-space:nowrap}
+.scan-pill .ok{display:none;color:#4ADE80}
+.locked .scan-pill .seeking{display:none}
+.locked .scan-pill .ok{display:inline}
+.scan-caption{position:absolute;bottom:9vh;left:0;right:0;text-align:center;color:#DCE7F8;padding:0 24px}
+.scan-caption h2{color:#F4F8FF;font-size:clamp(34px,5vw,56px);text-shadow:0 2px 26px rgba(6,10,18,.65),0 1px 8px rgba(6,10,18,.5)}
+.scan-caption .stopped{margin-top:10px;font-size:clamp(15px,1.8vw,18px);color:#8FF2B4;font-weight:700;text-shadow:0 1px 12px rgba(6,10,18,.6);opacity:0;transform:translateY(8px);transition:all .5s ease .15s}
+.locked .scan-caption .stopped{opacity:1;transform:none}
+
+/* ---- Act 4: you rise ---- */
+.act-rise{background:linear-gradient(180deg,#EAF3FE 0%,var(--paper) 70%);padding:120px 0 40px;text-align:center}
+.act-rise .phone{max-width:300px;margin:56px auto 0}
+.act-rise h2{font-size:clamp(42px,6vw,72px)}
+.act-rise .sub{margin:18px auto 0}
+
+/* ================= DAY ================= */
+.day{position:relative;background:var(--paper)}
+section{padding:96px 0}
+
+.phone{position:relative;border-radius:52px;border:9px solid #0B0F1A;box-shadow:0 40px 90px rgba(17,24,39,.24),0 8px 24px rgba(17,24,39,.12);overflow:hidden;background:#000}
+.phone img{width:100%;height:100%;object-fit:cover}
+.phone::after{content:"";position:absolute;top:12px;left:50%;transform:translateX(-50%);width:26%;height:22px;background:#0B0F1A;border-radius:999px}
+
+/* Manifesto headline */
+.claim{text-align:center;padding-top:64px}
+.claim h2{font-size:clamp(40px,5.4vw,68px);max-width:17ch;margin:0 auto}
+.claim .sub{margin:22px auto 0}
+.launch-pill{display:inline-flex;align-items:center;gap:10px;margin-top:36px;background:var(--ink);color:#fff;border-radius:999px;padding:16px 28px;font-weight:700;font-size:16px}
+.launch-pill .dot-sun{width:18px;height:18px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#FFE9A8,#FBBF24)}
+.claim-note{margin-top:14px;font-size:14px;color:#8B95A5}
+
+/* Promise band */
+.promise{text-align:center}
+.promise blockquote{font-family:var(--serif);font-weight:400;font-size:clamp(30px,4.6vw,54px);line-height:1.18;max-width:20ch;margin:0 auto}
+.promise p{margin-top:22px;color:var(--ink-soft);font-size:17px}
+
+/* Bento */
+.bento{display:grid;grid-template-columns:1.2fr .8fr;gap:24px}
+.cell{border-radius:var(--radius);overflow:hidden;position:relative}
+.cell-shot{background:linear-gradient(160deg,#DBEAFE,#EFF6FF);display:grid;grid-template-columns:1fr 1fr;align-items:center;min-height:380px}
+.cell-shot .phone{max-width:230px;margin:36px auto;rotate:-2deg;border-radius:40px}
+.cell-shot .cell-copy{padding:40px 40px 40px 8px}
+.cell-photo{min-height:280px}
+.cell-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cell-photo .veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,17,34,.05) 30%,rgba(10,17,34,.72) 100%)}
+.cell-photo .cell-copy{position:absolute;left:0;right:0;bottom:0;padding:28px;color:#fff}
+.cell-photo .cell-copy p{color:#D9E4F5}
+.cell-plain{background:#F4F6F9;padding:36px 32px;display:flex;flex-direction:column;justify-content:flex-end;min-height:230px}
+.cell h3{font-family:var(--serif);font-weight:400;font-size:26px;line-height:1.15}
+.cell p{margin-top:8px;color:var(--ink-soft);line-height:1.5;font-size:15px}
+.versions{display:flex;gap:8px;margin-bottom:16px}
+.versions span{font-size:13px;font-weight:700;letter-spacing:.06em;border:1.5px solid #D3DAE4;border-radius:999px;padding:7px 14px;color:var(--ink-soft)}
+
+/* Story */
+.story{position:relative;border-radius:44px;overflow:hidden;margin:0 12px;min-height:520px;display:grid;align-items:end}
+.story img{position:absolute;inset:0;width:100%;height:112%;object-fit:cover}
+.story .veil{position:absolute;inset:0;background:linear-gradient(200deg,rgba(6,11,24,.18) 0%,rgba(6,11,24,.78) 82%)}
+.story-copy{position:relative;padding:64px;max-width:640px;color:#fff}
+.story-copy h2{color:#fff}
+.story-copy p{margin-top:18px;color:#CFE0F6;font-size:18px;line-height:1.65}
+.story-copy .ref{margin-top:14px;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:#8FA6CB}
+
+/* Support / FAQ */
+.support-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:64px;align-items:start}
+.support h2{max-width:12ch}
+.mail-btn{display:inline-block;margin-top:28px;background:var(--ink);color:#fff;text-decoration:none;font-weight:700;border-radius:999px;padding:16px 30px;font-size:16px;transition:transform .15s ease}
+.mail-btn:active{transform:scale(.98)}
+.mail-note{margin-top:12px;font-size:14px;color:#8B95A5}
+.faq details{border-bottom:1px solid #E7EAF0;padding:22px 0}
+.faq details:first-child{border-top:1px solid #E7EAF0}
+.faq summary{font-weight:700;font-size:17px;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:16px}
+.faq summary::after{content:"+";font-family:var(--serif);font-size:24px;color:#9AA5B5;transition:rotate .2s ease}
+.faq details[open] summary::after{rotate:45deg}
+.faq p{margin-top:12px;color:var(--ink-soft);line-height:1.6;font-size:16px;max-width:60ch}
+
+/* Footer */
+footer{position:relative;margin-top:40px;padding:140px 0 48px;background:linear-gradient(0deg,#DCFCE7 0%,#F0FDF4 46%,var(--paper) 100%)}
+.foot-verse{text-align:center;font-family:var(--serif);font-size:clamp(26px,3.6vw,40px);max-width:24ch;margin:0 auto;line-height:1.25}
+.foot-verse em{font-style:italic;color:var(--ground-deep)}
+.foot-row{margin-top:88px;display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap}
+.foot-brand{font-family:var(--serif);font-size:28px}
+.foot-links{display:flex;gap:28px;font-size:15px;color:var(--ink-soft)}
+.foot-links a{text-decoration:none}
+.foot-links a:hover{color:var(--ink)}
+.foot-copy{width:100%;margin-top:18px;font-size:13.5px;color:#7A8798}
+.foot-copy a{color:inherit}
+
+/* Reveal */
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1)}
+.reveal.in{opacity:1;transform:none}
+
+a:focus-visible,summary:focus-visible{outline:3px solid var(--dawn);outline-offset:3px;border-radius:6px}
+
+/* ---------- Static mode: reduced motion or no scroll-timeline support ---------- */
+body.static .act{height:auto!important;background:none}
+body.static .scene{position:relative;height:auto;min-height:100dvh}
+body.static .act-dawn .scene{background:linear-gradient(180deg,#7FA6DE 0%,#B7CFF0 55%,#EFF6FF 100%)}
+body.static .sky-night,body.static .stars{display:none}
+body.static .sky-morning{opacity:1}
+body.static .sun{transform:translate(-50%,-14vh)}
+body.static .sun-halo{transform:translate(-50%,-14vh)}
+body.static .dawn-word h1{color:var(--ink)}
+body.static .dawn-word p{color:var(--ink-soft)}
+body.static .dawn-word .ref{color:#93A4C6}
+body.static .act-ring .scene,body.static .act-scan .scene{min-height:90dvh;display:block;padding:80px 0}
+body.static .ring-stage{position:relative;padding:60px 0}
+body.static .ring-copy{position:relative;top:auto;bottom:auto;margin:24px 0}
+body.static .locked-only{opacity:1!important}
+body.static .scan-caption,body.static .scan-pill{position:relative;top:auto;bottom:auto;left:auto;transform:none;margin:20px auto;display:table}
+body.static .finder{position:relative;padding:40px 0}
+body.static .reveal{opacity:1;transform:none;transition:none}
+@media (prefers-reduced-motion:reduce){
+  .pulsing .halo{animation:none;opacity:.4}
+  .scanline{animation:none}
+}
+
+/* ---------- Mobile ---------- */
+@media (max-width:900px){
+  section{padding:72px 0}
+  .bento{grid-template-columns:1fr}
+  .cell-shot{grid-template-columns:1fr;min-height:0}
+  .cell-shot .cell-copy{padding:0 32px 36px}
+  .cell-shot .phone{margin:32px auto 24px}
+  .support-grid{grid-template-columns:1fr;gap:40px}
+  .story-copy{padding:36px 28px}
+  .story{min-height:440px}
+  .act-dawn{height:220vh}
+  .act-ring{height:240vh}
+  .act-scan{height:260vh}
+  .ring-copy.rc1{top:9vh}
+  .ring-copy.rc2{bottom:7vh}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ ONE MORNING: scroll is time ============ -->
+
+<!-- Act 1 · Before sunrise -->
+<div class="act act-dawn" id="top">
+  <div class="scene">
+    <div class="sky-night"></div>
+    <div class="stars"></div>
+    <div class="sky-morning"></div>
+    <div class="sun-halo"></div>
+    <div class="sun"></div>
+    <div class="horizon"></div>
+    <div class="dawn-word">
+      <div>
+        <h1>Risen</h1>
+        <p>He is not here. He has risen.</p>
+        <span class="ref">Matthew 28:6</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Act 2 · It rings -->
+<div class="act act-ring">
+  <div class="scene">
+    <div class="ring-bg"></div>
+    <div class="ring-tint"></div>
+    <div class="ring-copy rc1"><h2>It rings.</h2></div>
+    <div class="ring-stage">
+      <div class="ring-phone pulsing">
+        <i class="halo"></i><i class="halo h2"></i><i class="halo h3"></i>
+        <div class="phone"><img src="assets/01-alarm.jpg" alt="Risen's alarm screen showing today's verse and the week's streak" width="1320" height="2868"></div>
+      </div>
+    </div>
+    <div class="ring-copy rc2"><p>There is no snooze button. There is one way out.</p></div>
+  </div>
+</div>
+
+<!-- Act 3 · The scan -->
+<div class="act act-scan">
+  <div class="scene" id="scanScene">
+    <div class="scan-bg"><img id="scanImg" src="assets/bible-scan.jpg" alt="A real printed Bible page, open to Psalm 28" width="1350" height="1800"></div>
+    <div class="scan-dim"></div>
+    <div class="finder">
+      <div class="brackets"><i></i><i></i><i></i><i></i><span class="scanline"></span></div>
+    </div>
+    <div class="scan-pill"><span class="seeking">Looking for Psalm 28:7</span><span class="ok">Psalm 28:7 &#10003;</span></div>
+    <div class="scan-caption">
+      <h2>Open the Book. Find the verse.</h2>
+      <p class="stopped">Alarm stopped.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Act 4 · You rise -->
+<div class="act-rise">
+  <div class="wrap">
+    <h2 class="reveal">You rise.</h2>
+    <p class="sub reveal" style="margin-left:auto;margin-right:auto;text-align:center">A prayer and a devotional, written for the verse you just scanned. Two minutes of stillness, then the day.</p>
+    <div class="phone reveal"><img src="assets/04-prayer.jpg" alt="A prayer written for the scanned verse, revealed line by line" loading="lazy" width="1320" height="2868"></div>
+  </div>
+</div>
+
+<!-- ============ DAY ============ -->
+<div class="day">
+
+  <section class="claim">
+    <div class="wrap reveal">
+      <h2>The alarm you answer with your Bible.</h2>
+      <p class="sub">It rings until you photograph today's verse from a real Bible. Then comes a prayer written for that morning.</p>
+      <span class="launch-pill"><span class="dot-sun"></span>App Store · Easter Sunday 2026</span>
+      <p class="claim-note">iPhone, iOS 26 and later.</p>
+    </div>
+  </section>
+
+  <section class="promise">
+    <div class="wrap reveal">
+      <blockquote>Risen keeps reminding you until you scan your verse. <em>That is the promise.</em></blockquote>
+      <p>You can turn any alarm off whenever you like. You just can't snooze it.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="bento">
+        <div class="cell cell-shot reveal">
+          <div class="phone"><img src="assets/07-progress.jpg" alt="The progress tab showing a scan streak and past mornings" loading="lazy" width="1320" height="2868"></div>
+          <div class="cell-copy">
+            <h3>Streaks you can't fake.</h3>
+            <p>A day only counts when the verse was scanned and the prayer was read. That's why the number means something.</p>
+          </div>
+        </div>
+        <div class="cell cell-plain reveal">
+          <div class="versions"><span>BSB</span><span>WEB</span><span>KJV</span></div>
+          <h3>Your translation, your choice.</h3>
+          <p>Three trusted public domain translations built in. Pick one and every verse, prayer, and devotional follows it.</p>
+        </div>
+        <div class="cell cell-photo reveal">
+          <img src="assets/bible-psalm.jpg" alt="An open printed Bible, Psalm 28" loading="lazy">
+          <div class="veil"></div>
+          <div class="cell-copy">
+            <h3>Paper first, on purpose.</h3>
+            <p>Risen scans the Bible on your shelf. The phone is the alarm. The Book is the point.</p>
+          </div>
+        </div>
+        <div class="cell cell-plain reveal" style="background:linear-gradient(160deg,#EFF6FF,#DBEAFE)">
+          <h3>The verse meets you at the lock screen.</h3>
+          <p>A widget keeps today's verse and your streak in view before you even unlock.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="story reveal">
+      <img id="storyImg" src="assets/bible-isaiah.jpg" alt="An open printed Bible, Isaiah 41" loading="lazy">
+      <div class="veil"></div>
+      <div class="story-copy">
+        <h2>Why it's called Risen</h2>
+        <p>The name comes from the empty tomb. To wake is to rise, and to rise is to start the day with Him. One verse before your feet hit the floor changes the shape of a morning.</p>
+        <span class="ref">From Matthew 28:6 and 7</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="support">
+    <div class="wrap support-grid">
+      <div class="support reveal">
+        <h2>Questions? A human answers.</h2>
+        <p class="sub" style="margin-top:16px">Risen is built by one person who reads every message.</p>
+        <a class="mail-btn" href="mailto:satangscorgi@gmail.com">Email support</a>
+        <p class="mail-note">satangscorgi@gmail.com · replies within a day or two</p>
+      </div>
+      <div class="faq reveal">
+        <details>
+          <summary>Can I snooze the alarm?</summary>
+          <p>No, and that's the heart of the app. The alarm ends when today's verse is scanned. Until then, Risen keeps nudging you with reminders. You can still turn any alarm off entirely from the Alarm tab.</p>
+        </details>
+        <details>
+          <summary>Does it work with my Bible?</summary>
+          <p>Any printed Bible in a major translation. Risen reads the words through your camera and matches the verse. Photos never leave your phone; only the text that was read is checked, and you can keep even that fully on-device.</p>
+        </details>
+        <details>
+          <summary>How much does it cost?</summary>
+          <p>One subscription, two options: $39.99 a year with a 3 day free trial, or $9.99 weekly. Managed and cancelled through your Apple ID settings, no account needed.</p>
+        </details>
+        <details>
+          <summary>Where does my data live?</summary>
+          <p>On your iPhone. Risen has no accounts and no database of you. Streaks, journal notes, and reflections stay in local storage, and deleting the app deletes them.</p>
+        </details>
+        <details>
+          <summary>When does it launch?</summary>
+          <p>Easter Sunday, April 5, 2026, on the App Store for iPhone.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <p class="foot-verse reveal">"I can do all things through Him who gives me <em>strength</em>."</p>
+      <div class="foot-row">
+        <span class="foot-brand">Risen</span>
+        <nav class="foot-links" aria-label="Legal">
+          <a href="https://satangcorgi.github.io/risen-legal/privacy.html">Privacy policy</a>
+          <a href="https://satangcorgi.github.io/risen-legal/terms.html">Terms of service</a>
+        </nav>
+        <p class="foot-copy">© 2026 Risen. Made in the Philippines. Support: <a href="mailto:satangscorgi@gmail.com">satangscorgi@gmail.com</a></p>
+      </div>
+    </div>
+  </footer>
+
+</div>
+
+<script src="vendor/gsap.min.js"></script>
+<script src="vendor/ScrollTrigger.min.js"></script>
+<script>
+(function(){
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce || !window.gsap || !window.ScrollTrigger) {
+    document.body.classList.add('static');
+    document.querySelectorAll('.reveal').forEach(function(el){el.classList.add('in')});
+    var s=document.getElementById('scanScene'); if(s) s.classList.add('locked');
+    return;
+  }
+  gsap.registerPlugin(ScrollTrigger);
+
+  /* Act 1: the sun rises. Scroll drives night into morning. */
+  gsap.timeline({scrollTrigger:{trigger:'.act-dawn',start:'top top',end:'bottom bottom',scrub:true}})
+    .to('.stars',{opacity:0,ease:'none',duration:.45},0.1)
+    .to('.sun',{y:'-=58vh',ease:'none',duration:.85},0.1)
+    .to('.sun-halo',{y:'-=58vh',ease:'none',duration:.9},0.05)
+    .to('.sky-morning',{opacity:1,ease:'none',duration:.55},0.4)
+    .to('.dawn-word',{opacity:0,y:-46,scale:.97,ease:'none',duration:.22},0.5);
+
+  /* Act 2: the phone rings in the half light. */
+  gsap.timeline({scrollTrigger:{trigger:'.act-ring',start:'top top',end:'bottom bottom',scrub:true}})
+    .from('.ring-phone',{y:'46vh',scale:.86,ease:'none',duration:.45},0)
+    .from('.ring-copy.rc1',{opacity:0,y:24,ease:'none',duration:.18},0.12)
+    .from('.ring-copy.rc2',{opacity:0,y:24,ease:'none',duration:.18},0.42)
+    .to('.ring-phone',{y:'-8vh',ease:'none',duration:.3},0.7)
+    .to('.ring-copy.rc1',{opacity:0,ease:'none',duration:.15},0.78)
+    .to('.ring-copy.rc2',{opacity:0,ease:'none',duration:.15},0.8);
+
+  /* Act 3: scrolling performs the scan. The brackets travel the page,
+     then lock green on the real verse and the alarm dies. */
+  var scanScene=document.getElementById('scanScene');
+  gsap.timeline({scrollTrigger:{
+      trigger:'.act-scan',start:'top top',end:'bottom bottom',scrub:true,
+      onUpdate:function(self){scanScene.classList.toggle('locked',self.progress>0.68)}
+    }})
+    .fromTo('#scanImg',{scale:1.18,xPercent:9,yPercent:7},{scale:1.0,xPercent:-4,yPercent:-1,ease:'none',duration:.7},0)
+    .to('#scanImg',{scale:.97,xPercent:-5,yPercent:-1,ease:'none',duration:.3},0.7);
+
+  /* Story photo: slow parallax drift. */
+  gsap.to('#storyImg',{yPercent:-10,ease:'none',
+    scrollTrigger:{trigger:'.story',start:'top bottom',end:'bottom top',scrub:true}});
+
+  /* Reveals */
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.18});
+  document.querySelectorAll('.reveal').forEach(function(el){io.observe(el)});
+})();
+</script>
+</body>
+</html>
