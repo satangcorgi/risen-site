@@ -7,3 +7,10 @@
 - `approved-jeremiah-demo.png`: byte-for-byte copy of `/Users/vin/Risen/Risen/Resources/Assets.xcassets/jeremiah-29-11.imageset/jeremiah-29-11.png`; SHA-256 `c38158e59c0a27b9c9c098527a88d549e1c2ec4df4a6ce542ef35ab003d56e33`.
 
 The original app screenshots are first-party Risen captures. Font and animation-vendor files are unchanged in this pass.
+
+## 8 November 2026 redesign
+
+- `assets/plate-creation-of-light.png`: Gustave Doré, "The Creation of Light" (1866), engraving from the Doré Bible, public domain. The same file ships in the app (`RisenWidget/plate-creation-of-light.png`). The page dithers it live in the browser.
+- `assets/risen-icon.png`: the Risen app icon, resized to 256 px. First-party.
+- `review.html`: Philippians 4:10-16 in the Berean Standard Bible (public domain), a scan target for App Review.
+- The earlier illustrations above stay in `assets/` but the new index no longer uses them.
