@@ -81,6 +81,9 @@ for (const name of Object.keys(LOOKS)) {
 
 // ---------------------------------------------------------------- the store, always near
 const getPill = document.getElementById('get');
+const topBar = document.querySelector('header.top');
+const barState = () => topBar.classList.toggle('solid', scrollY > innerHeight * 0.6);
+addEventListener('scroll', barState, { passive: true }); barState();
 const heroAct = document.querySelector('.hero .act');
 new IntersectionObserver(([e]) => getPill.classList.toggle('on', !e.isIntersecting), { threshold: 0 }).observe(heroAct);
 
@@ -246,10 +249,10 @@ function intro() {
   const h1 = document.getElementById('headline');
   const rest = document.querySelectorAll('.hero .sub, .hero .act');
   if (reduce) return;
-  gsap.set(h1, { opacity: 0, y: 14 });
+  gsap.set(h1, { opacity: 0.001, y: 10 });
   gsap.set(rest, { opacity: 0, y: 10 });
-  gsap.to(items.sky, { base: -0.7, duration: 2.8, ease: 'power2.out' });
-  gsap.to(h1, { opacity: 1, y: 0, duration: 1.0, ease: 'power3.out', delay: 0.05 });
+  gsap.to(items.sky, { base: -0.7, duration: 1.7, ease: 'power3.out' });
+  gsap.to(h1, { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out' });
   gsap.to(rest, { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out', delay: 0.15, stagger: 0.06 });
 }
 
@@ -386,6 +389,10 @@ function frame(now) {
   stage.draw();
   requestAnimationFrame(frame);
 }
+
+// Test hook: ?y=0.4 opens the page scrolled that far through the how-it-works scene.
+const at = new URLSearchParams(location.search).get('y');
+if (at !== null) setTimeout(() => { const l = document.querySelector('.loop'); scrollTo(0, l.offsetTop + Number(at) * (l.offsetHeight - innerHeight)); }, 900);
 
 if (stage) build();
 else { const lay = () => { layoutMarks(); setLoop(loopState.p); }; lay(); document.fonts.ready.then(lay); addEventListener('resize', lay); }
