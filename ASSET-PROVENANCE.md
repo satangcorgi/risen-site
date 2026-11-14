@@ -19,6 +19,6 @@ The original app screenshots are first-party Risen captures. Font and animation-
 
 - `assets/v2/book-atlas.jpg`: frames 4 to 60 of the app's own book-opening clip (`Risen/Resources/BookOpening/book-open-NN.jpg`), greyscale, tiled 8 by 8 at 320 px. The page dithers it live. `assets/v2/book-open.jpg` is frame 60, the still shown when WebGL isn't available.
 - `assets/v2/0N-*.jpg`, `x-kept.jpg`: first-party Risen captures from the App Store screenshot pipeline (`docs/revamp-2026-11/store/screenshots/iphone/raw`), resized to 660 px wide. `01-open-your-bible.jpg` shows the approved Psalm 23 illustration listed above, unchanged.
-- `assets/v2/alarm-classic.m4a`: the first 4 seconds of the app's `alarm_classic.caf`, which is synthesized from a 440 Hz tone expression (see the app's Sounds/README.md). It plays only when the visitor taps "Hear it".
+- `assets/v2/alarm-classic.m4a`: the first 4 seconds of the app's shipped `alarm_classic.caf` (measured: about 1 kHz, in bursts of roughly half a second on and off; the app's Sounds/README.md says all its tones are synthesized, though its 440 Hz note for Classic is out of date). It plays only when the visitor taps "Hear it".
 - `assets/v2/app-store-badge.svg`: Apple's official "Download on the App Store" badge, from developer.apple.com, unmodified.
 - `assets/og/risen-loop.mp4`, `risen-og.jpg`: one 5.8 s cycle of the app's dithered book loop, recorded from the Debug screen harness in the Morning look.
