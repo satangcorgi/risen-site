@@ -121,9 +121,15 @@ async function build() {
   // the page opens fully dotted and the light comes through.
   items.sky = stage.add({
     el: document.querySelector('[data-dither="sky"]'), tex: plateTex, texW: plate.width, texH: plate.height,
-    focus: [0.5, 0.2], gain: 2.0, bias: 0, base: reduce ? -0.7 : 0.15, fadeBottom: 0.75, cell: 2,
-    light: [0, 0, 300], lightAmt: 0.85, role: 'sky',
+    focus: [0.5, 0.2], gain: 2.0, bias: 0, base: reduce ? -0.7 : 0.15, fadeBottom: 0.86, fadeTop: 0.1, cell: 2,
+    light: [0, 0, 300], lightAmt: 1, role: 'sky',
   });
+  // Bands of cloud between sections, so the sky runs down the page.
+  document.querySelectorAll('[data-dither="band"]').forEach(el => {
+    stage.add({ el, tex: plateTex, texW: plate.width, texH: plate.height, focus: el.dataset.focus.split(',').map(Number),
+      gain: 2.0, bias: -0.75, fadeTop: 0.5, fadeBottom: 0.5, cell: 2, light: [0, 0, 300], lightAmt: 1, role: 'sky' });
+  });
+
   // The looks panel: the same plate, close on the light, re-inked live.
   items.plate = stage.add({
     el: document.querySelector('[data-dither="plate"]'), tex: plateTex, texW: plate.width, texH: plate.height,
@@ -144,7 +150,7 @@ async function build() {
   const atlas = await loadImage('assets/v2/book-atlas-512.jpg');
   items.book = stage.add({
     el: document.querySelector('[data-dither="book"]'), tex: stage.texture(atlas, { gray: true }), gray: true,
-    texW: 512, texH: 512, atlas: 8, frame: 0, focus: [0.5, 0.52], gain: 1.3, bias: -0.04, cell: 1.5, role: 'book',
+    texW: 512, texH: 512, atlas: 8, frame: 0, focus: [0.5, 0.52], gain: 1.3, bias: -0.04, cell: 2, role: 'book',
   });
 
   // The verse: drawn as dots first, then developed into ink.
@@ -382,7 +388,7 @@ function frame(now) {
   const kp = 1 - Math.exp(-dt * (idle ? 1.2 : 6));
   pointer.x += (pointer.tx - pointer.x) * kp;
   pointer.y += (pointer.ty - pointer.y) * kp;
-  const radius = Math.min(innerWidth, innerHeight) * 0.34;
+  const radius = Math.min(innerWidth, innerHeight) * 0.42;
 
   // Scrolling away from the hero, the light rises and burns off the cloud.
   if (items.sky) {
@@ -401,7 +407,7 @@ function frame(now) {
     } else if (it.role === 'plate') {
       it.ground = ink.sky; it.dot = mix(ink.dots, ink.tint, 0.35);
     } else if (it.role === 'book') {
-      it.ground = ink.ground; it.dot = mix(ink.dots, ink.ink, 0.62);
+      it.ground = ink.ground; it.dot = mix(ink.dots, ink.tint, 0.72);
     } else if (it.role === 'screen') {
       it.ground = ink.ground; it.dot = mix(ink.dots, ink.ink, 0.3);
     } else if (it.role === 'verse') {

@@ -198,7 +198,10 @@ h2 { font-weight: 500; font-size: clamp(36px, 5.6vw, 72px); line-height: 1; lett
 .look .sw { width: 30px; height: 30px; border-radius: 50%; background-color: var(--a);
   background-image: radial-gradient(var(--b) 46%, transparent 48%); background-size: 4px 4px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.06); }
 .looks-note { margin-top: 18px; font-size: 15px; color: var(--quiet); }
+.band { height: clamp(140px, 26vh, 260px); margin: -40px 0; }
+@media (max-width: 600px) { .band { height: 120px; margin: -24px 0; } }
 .looks-grid { display: grid; gap: 40px; align-items: center; }
+@media (max-width: 899px) { .look-plate { order: -1; aspect-ratio: 16 / 9; } }
 @media (min-width: 900px) { .looks-grid { grid-template-columns: 1fr 1fr; } }
 .look-plate { aspect-ratio: 4 / 3; border-radius: 28px; overflow: hidden; box-shadow: 0 0 0 1px var(--rule); }
 
@@ -378,6 +381,8 @@ footer a { color: var(--quiet); }
   </div>
 </section>
 
+<div class="band pic" data-dither="band" data-focus="0.8,0.42" aria-hidden="true"></div>
+
 <section class="block" id="any">
   <div class="wrap any">
     <div>
@@ -390,11 +395,13 @@ footer a { color: var(--quiet); }
         <li><b>On your phone</b><span>Photos stay on your phone. Turn on Smart reading and only the words it reads go online.</span></li>
       </ul>
     </div>
-    <div class="page-pic pic reveal" data-dither="screen" data-src="assets/v2/01-open-your-bible.jpg" data-focus="0.5,0.9">
-      <img class="fallback" src="assets/v2/01-open-your-bible.jpg" alt="Risen reading a printed page of Psalm 23." loading="lazy">
+    <div class="page-pic pic reveal" data-dither="screen" data-src="assets/v2/psalm-23-page.jpg" data-focus="0.5,0.5">
+      <img class="fallback" src="assets/v2/psalm-23-page.jpg" alt="A printed Bible open to Psalm 23, with a few verses highlighted." loading="lazy">
     </div>
   </div>
 </section>
+
+<div class="band pic" data-dither="band" data-focus="0.2,0.6" aria-hidden="true"></div>
 
 <section class="block" id="looks">
   <div class="wrap">
@@ -409,6 +416,8 @@ footer a { color: var(--quiet); }
     </div>
   </div>
 </section>
+
+<div class="band pic" data-dither="band" data-focus="0.6,0.75" aria-hidden="true"></div>
 
 <section class="block" id="plans">
   <div class="wrap">
