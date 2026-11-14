@@ -177,7 +177,7 @@ async function build() {
             if (!v.isIntersecting) return;
             watch.disconnect();
             const i = [...document.querySelectorAll('[data-dither="screen"]')].indexOf(el);
-            gsap.to(it, { develop: 1, duration: 0.85, ease: 'power1.inOut', delay: 0.1 + Math.max(0, i) * 0.07 });
+            gsap.to(it, { develop: 1, duration: 0.6, ease: 'power1.inOut', delay: 0.05 + Math.max(0, i) * 0.05 });
           }, { threshold: 0.35 });
           watch.observe(row);
         }
@@ -323,7 +323,11 @@ function setLoop(p) {
   });
   const verseIn = smooth(span(p, 0.7, 0.75));
   show(verseBox, verseIn);
-  if (items.book) items.book.frame = Math.min(55.999, 56 * smooth(span(p, 0.18, 0.54)));
+  if (items.book) {
+    const o = smooth(span(p, 0.18, 0.54));
+    const f = o < 0.35 ? o / 0.35 * 14 : o < 0.5 ? 14 + (o - 0.35) / 0.15 * 24 : 38 + (o - 0.5) / 0.5 * 18;
+    items.book.frame = Math.min(55.999, f);
+  }
   // The camera reads the page.
   const s = span(p, 0.55, 0.68);
   scan.style.opacity = (s > 0 && s < 1 ? Math.sin(s * Math.PI) : 0).toFixed(3);
@@ -393,7 +397,10 @@ function frame(now) {
   // Scrolling away from the hero, the light rises and burns off the cloud.
   if (items.sky) {
     const out = clamp01(scrollY / (innerHeight * 0.9));
-    items.sky.bias = items.sky.base - (reduce ? 0 : 1.1 * out * out);
+    const t = now / 1000;
+    const breathe = reduce ? 0 : 0.05 * Math.sin(t * 0.5);
+    items.sky.bias = items.sky.base - (reduce ? 0 : 1.1 * out * out) + breathe;
+    if (!reduce) items.sky.focus = [0.5 + 0.06 * Math.sin(t * 0.05), 0.2 + 0.03 * Math.sin(t * 0.037)];
   }
   for (const it of stage.items) {
     if (it.role === 'sky' && it === items.dawn) {

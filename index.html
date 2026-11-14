@@ -97,6 +97,11 @@ h1 { font-weight: 500; font-size: clamp(46px, 8.4vw, 112px); line-height: .98; l
 .hero .act { margin-top: 30px; display: flex; flex-wrap: wrap; align-items: center; gap: 14px 22px; }
 .hero .act .note { font-size: 15px; color: var(--quiet); }
 .hero .copy { width: 100%; }
+/* A soft clearing behind the words, so no dot ever sits between letters. */
+.hero .copy::before { content: ""; position: absolute; z-index: -1; left: -6%; right: 30%; top: -14%; bottom: -10%;
+  background: radial-gradient(closest-side, var(--ground) 62%, color-mix(in srgb, var(--ground) 70%, transparent) 80%, transparent);
+  pointer-events: none; }
+@media (max-width: 899px) { .hero .copy::before { right: -6%; } }
 .hero-phone { position: absolute; z-index: 0; width: clamp(150px, 22vw, 300px); right: max(24px, calc(50% - 536px));
   top: 50%; transform: translateY(-46%); }
 .hero-phone .phone { box-shadow: 0 0 0 6px var(--ink), 0 40px 80px -30px rgba(13,22,36,.5); border-radius: 30px; }
