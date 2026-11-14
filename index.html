@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Risen</title>
 <meta name="description" content="An alarm that stops when you open your Bible.">
+<meta name="apple-itunes-app" content="app-id=6792408005">
+<meta name="theme-color" content="#F4F8FD" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#080F1C" media="(prefers-color-scheme: dark)">
 <link rel="canonical" href="https://satangcorgi.github.io/risen-site/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Risen">
@@ -27,121 +30,332 @@
 <meta name="twitter:image" content="https://satangcorgi.github.io/risen-site/assets/og/risen-og.jpg">
 <link rel="icon" href="assets/risen-icon.png">
 <link rel="apple-touch-icon" href="assets/risen-icon.png">
+<link rel="preload" as="image" href="assets/plate-creation-of-light.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500;600&family=Literata:opsz,wght@7..72,400;7..72,500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500;600&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,500;1,7..72,400&display=swap" rel="stylesheet">
 <style>
 :root {
-  --ground: #F4F8FD; --surface: #FFFFFF; --ink: #0D1624; --quiet: #4A5568; --tint: #1C64F2;
-  --kept: #15803D; --sky-dot: #B8D1F8; --rule: rgba(13, 22, 36, .12);
-}
-@media (prefers-color-scheme: dark) {
-  :root { --ground: #080F1C; --surface: #111A2B; --ink: #EAF1FA; --quiet: #A7B3C6; --tint: #60A5FA;
-    --kept: #4ADE80; --sky-dot: #1B3663; --rule: rgba(234, 241, 250, .14); }
+  --ground: #F4F8FD; --surface: #FFFFFF; --ink: #0D1624; --tint: #2F5BC8; --kept: #1E7A46;
+  --sky: #E3EEFD; --dots: #A8C4F2; --quiet: #4A5568; --rule: rgba(13, 22, 36, .12);
+  --marker: color-mix(in srgb, #4ADE80 46%, var(--ground));
+  --ease: cubic-bezier(.22, 1, .36, 1);
 }
 * { box-sizing: border-box; margin: 0; }
-html { background: var(--ground); -webkit-text-size-adjust: 100%; }
-body { font-family: "Host Grotesk", -apple-system, sans-serif; color: var(--ink); background: var(--ground);
-  font-size: 18px; line-height: 1.55; }
+html { background: var(--ground); -webkit-text-size-adjust: 100%; transition: background-color .6s var(--ease); }
+body { font-family: "Host Grotesk", -apple-system, BlinkMacSystemFont, sans-serif; color: var(--ink);
+  font-size: 18px; line-height: 1.55; -webkit-font-smoothing: antialiased; overflow-x: clip;
+  transition: color .6s var(--ease); }
 a { color: var(--tint); text-underline-offset: 3px; }
-.page { max-width: 1040px; margin: 0 auto; padding: 0 24px; }
-.read { max-width: 640px; }
+img { display: block; max-width: 100%; }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
-/* The sky: Doré's "The Creation of Light", dithered live in two close tones. */
-.hero { position: relative; min-height: 92vh; min-height: 92svh; display: flex; align-items: flex-end; overflow: hidden; }
-#sky { position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; }
-.hero .page { position: relative; padding-bottom: 72px; width: 100%; }
-.mark { display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 22px; letter-spacing: -.02em; }
-.mark img { width: 40px; height: 40px; border-radius: 10px; }
-h1 { font-weight: 500; font-size: clamp(44px, 8vw, 96px); line-height: 1; letter-spacing: -.035em; margin-top: 28px; max-width: 12ch; }
-.soon { margin-top: 24px; display: inline-flex; align-items: center; gap: 10px; background: var(--tint); color: var(--ground);
-  padding: 15px 26px; border-radius: 999px; font-weight: 600; font-size: 17px; text-decoration: none; }
-.soon:active { transform: scale(.97); }
+/* The stage: one canvas behind everything draws the dots. */
+#stage { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 0; pointer-events: none; }
+main, footer { position: relative; }
+.pic { position: relative; }
+.pic > img.fallback { width: 100%; height: 100%; object-fit: cover; }
+html.gl .pic > img.fallback { opacity: 0; }
+/* Without WebGL: a quiet print of the plate, and the book on the paper. */
+html:not(.gl) .hero .fallback, html:not(.gl) .end .fallback { opacity: .16; filter: grayscale(1);
+  -webkit-mask-image: linear-gradient(to bottom, #000 30%, transparent 85%); mask-image: linear-gradient(to bottom, #000 30%, transparent 85%); }
+html:not(.gl) .loop .pin { background: var(--ground); }
+html:not(.gl) .book .fallback { mix-blend-mode: multiply; }
+@media (prefers-color-scheme: dark) { html:not(.gl) .book .fallback { filter: invert(1); mix-blend-mode: screen; } }
 
-section { padding: 96px 0; }
-section + section { border-top: 1px solid var(--rule); }
-h2 { font-weight: 500; font-size: clamp(32px, 5vw, 52px); line-height: 1.05; letter-spacing: -.03em; max-width: 18ch; }
-.lede { color: var(--quiet); margin-top: 16px; font-size: 20px; max-width: 34ch; }
+/* Top bar: the store is one tap away from the first second. */
+header.top { position: fixed; top: 0; left: 0; right: 0; z-index: 20; padding: 14px 0;
+  padding-top: max(14px, env(safe-area-inset-top)); }
+header.top .wrap { display: flex; align-items: center; justify-content: space-between; }
+.mark { display: inline-flex; align-items: center; gap: 10px; font-weight: 600; font-size: 20px; letter-spacing: -.02em;
+  color: var(--ink); text-decoration: none; }
+.mark img { width: 34px; height: 34px; border-radius: 9px; box-shadow: 0 1px 0 rgba(0,0,0,.06); }
+.get { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px 0 6px; border-radius: 999px;
+  background: var(--ink); color: var(--ground); font-weight: 600; font-size: 15px; text-decoration: none;
+  transform: translateY(-8px); opacity: 0; pointer-events: none; transition: opacity .35s var(--ease), transform .35s var(--ease); }
+.get img { width: 28px; height: 28px; border-radius: 8px; }
+.get.on { opacity: 1; transform: none; pointer-events: auto; }
+.get:active { transform: scale(.96); }
 
-.steps { list-style: none; padding: 0; margin-top: 48px; display: grid; gap: 32px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
-.steps li { border-top: 2px solid var(--ink); padding-top: 16px; }
-.steps b { display: block; font-weight: 600; font-size: 20px; letter-spacing: -.01em; margin-bottom: 6px; }
-.steps span { color: var(--quiet); }
-.steps li:last-child { border-color: var(--kept); }
+.badge { display: inline-block; line-height: 0; border-radius: 10px; transition: transform .2s var(--ease); }
+.badge img { height: 56px; width: auto; }
+.badge:hover { transform: translateY(-1px); }
+.badge:active { transform: scale(.97); }
+.badge:focus-visible, .get:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px solid var(--tint); outline-offset: 3px; }
 
-.verse { font-family: "Literata", serif; font-size: clamp(24px, 3.4vw, 34px); line-height: 1.35; margin-top: 40px; max-width: 26ch; }
-.verse::first-letter { float: left; font-size: 2.6em; line-height: .85; padding: 6px 10px 0 0; color: var(--tint); font-weight: 500; }
-.cite { margin-top: 14px; color: var(--quiet); font-size: 16px; }
+/* Hero: Doré's "The Creation of Light", in dots, lit where you point. */
+.hero { position: relative; min-height: 100vh; min-height: 100svh; display: grid; align-items: end; }
+.hero .pic { position: absolute; inset: 0; }
+.hero .copy { position: relative; padding-bottom: clamp(40px, 9vh, 96px); }
+h1 { font-weight: 500; font-size: clamp(46px, 8.4vw, 112px); line-height: .98; letter-spacing: -.04em; max-width: 11.5ch; }
+.hero p.sub { margin-top: 22px; font-size: clamp(18px, 1.6vw, 21px); max-width: 33ch; color: var(--ink); }
+.hero .act { margin-top: 30px; display: flex; flex-wrap: wrap; align-items: center; gap: 14px 22px; }
+.hero .act .note { font-size: 15px; color: var(--quiet); }
+.hero h1 .w { display: inline-block; }
 
-.plans { margin-top: 48px; display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
-.plan { background: var(--surface); border-radius: 22px; padding: 28px; border: 1px solid var(--rule); }
+/* The loop: it rings, you open your Bible, it stops. Pinned and scrubbed. */
+.loop { position: relative; height: 340vh; }
+.loop .pin { position: sticky; top: 0; height: 100vh; height: 100svh; display: grid; place-items: center; overflow: hidden; }
+.loop .scene { position: relative; width: min(92vw, 760px); display: grid; justify-items: center; gap: 4px; padding-top: 40px; }
+.alarm { position: relative; display: inline-flex; align-items: center; gap: 12px; padding: 10px 18px 10px 12px;
+  background: var(--surface); border-radius: 999px; box-shadow: 0 10px 30px -12px rgba(13,22,36,.25), 0 0 0 1px var(--rule);
+  font-size: 15px; white-space: nowrap; z-index: 2; }
+.alarm .clock { font-weight: 600; font-variant-numeric: tabular-nums; font-size: 17px; }
+.alarm .ref { color: var(--tint); font-weight: 600; }
+.alarm .dot { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--tint); color: #fff; }
+.alarm .dot svg { width: 16px; height: 16px; }
+.alarm.ringing { animation: ring .5s linear infinite; }
+.alarm.ringing .dot { animation: pulse 1s var(--ease) infinite; }
+.alarm .done { display: none; }
+.alarm.stopped .dot { background: var(--kept); }
+.alarm.stopped .bell, .alarm.stopped .find { display: none; }
+.alarm.stopped .done { display: inline; }
+@keyframes ring { 0%, 100% { transform: rotate(0); } 10% { transform: rotate(-2.2deg); } 20% { transform: rotate(2.2deg); }
+  30% { transform: rotate(-1.6deg); } 40% { transform: rotate(1.6deg); } 50% { transform: rotate(0); } }
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--tint) 45%, transparent); }
+  100% { box-shadow: 0 0 0 14px transparent; } }
+.hear { appearance: none; border: 0; background: none; color: var(--quiet); font: inherit; font-size: 14px; font-weight: 500;
+  display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; min-height: 44px; border-radius: 999px; cursor: pointer;
+  transition: opacity .3s var(--ease), color .2s; }
+.hear svg { width: 16px; height: 16px; }
+.hear[aria-pressed="true"] { color: var(--tint); }
+.hear[hidden] { display: inline-flex; opacity: 0; pointer-events: none; }
+.book { width: min(92vw, 70vh, 680px); aspect-ratio: 4 / 3; position: relative; }
+.scan { position: absolute; left: 6%; right: 6%; height: 2px; top: 30%; background: var(--tint); opacity: 0;
+  box-shadow: 0 0 18px 4px color-mix(in srgb, var(--tint) 40%, transparent); border-radius: 2px; }
+.say { position: relative; height: 7.2em; width: 100%; text-align: center; font-size: clamp(22px, 2.6vw, 30px);
+  font-weight: 500; letter-spacing: -.02em; line-height: 1.2; }
+.say > * { position: absolute; inset: 0 0 auto; margin: 0 auto; }
+.say .line { opacity: 0; max-width: 20ch; }
+.say .line small { display: block; font-size: 16px; font-weight: 400; letter-spacing: 0; color: var(--quiet); margin-top: 8px; }
+.verse { opacity: 0; }
+.verse blockquote { font-family: "Literata", Georgia, serif; font-weight: 400; font-size: clamp(22px, 2.8vw, 32px);
+  line-height: 1.38; letter-spacing: -.005em; max-width: 22ch; margin: 0 auto; position: relative; }
+.verse blockquote .t { position: relative; z-index: 1; }
+html.gl .verse blockquote .t { color: transparent; }
+.verse .marks { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+.verse .marks i { position: absolute; background: var(--marker); border-radius: 3px 5px 4px 3px;
+  clip-path: inset(0 100% 0 0); }
+.verse cite { display: block; margin-top: 12px; font-style: normal; font-size: 15px; color: var(--quiet); letter-spacing: 0; }
+
+/* Sections */
+section.block { padding: clamp(88px, 14vh, 160px) 0; }
+h2 { font-weight: 500; font-size: clamp(36px, 5.6vw, 72px); line-height: 1; letter-spacing: -.035em; max-width: 14ch; }
+.lede { margin-top: 18px; font-size: clamp(18px, 1.5vw, 21px); color: var(--quiet); max-width: 38ch; }
+
+/* After it stops: the real app, developing from dots into colour. */
+.screens { margin-top: 56px; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(220px, 1fr); gap: 22px;
+  overflow-x: auto; scroll-snap-type: x mandatory; padding: 8px 24px 28px; margin-left: -24px; margin-right: -24px;
+  scrollbar-width: none; overscroll-behavior-x: contain; }
+.screens::-webkit-scrollbar { display: none; }
+.screen { scroll-snap-align: center; }
+.phone { position: relative; aspect-ratio: 1320 / 2868; border-radius: 34px; padding: 0;
+  box-shadow: 0 0 0 7px var(--ink), 0 30px 60px -28px rgba(13,22,36,.45); margin: 7px; }
+.phone .pic { position: absolute; inset: 0; border-radius: 34px; overflow: hidden; }
+.screen p { margin-top: 26px; font-size: 17px; line-height: 1.4; max-width: 22ch; }
+.screen p b { display: block; font-weight: 600; }
+.screen p span { color: var(--quiet); }
+@media (min-width: 1000px) {
+  .screens { overflow: visible; grid-auto-columns: 1fr; padding: 8px 0 0; margin: 56px 0 0; }
+  .screen:nth-child(2), .screen:nth-child(4) { margin-top: 48px; }
+  .screen:nth-child(3) { margin-top: 96px; }
+}
+
+/* Any Bible */
+.any { display: grid; gap: 48px; grid-template-columns: 1fr; align-items: center; }
+@media (min-width: 900px) { .any { grid-template-columns: 1.1fr 1fr; } }
+.facts { list-style: none; padding: 0; display: grid; gap: 0; }
+.facts li { padding: 20px 0; border-top: 1px solid var(--rule); display: grid; grid-template-columns: 9.5em 1fr; gap: 16px; }
+.facts li:last-child { border-bottom: 1px solid var(--rule); }
+.facts b { font-weight: 600; }
+.facts span { color: var(--quiet); }
+@media (max-width: 560px) { .facts li { grid-template-columns: 1fr; gap: 4px; } }
+.page-pic { aspect-ratio: 4 / 5; border-radius: 28px; overflow: hidden; }
+
+/* Looks: pick one and the whole page re-inks. */
+.looks { margin-top: 44px; display: flex; flex-wrap: wrap; gap: 12px; }
+.look { appearance: none; border: 0; background: var(--surface); color: var(--ink); font: inherit; font-size: 16px; font-weight: 500;
+  display: inline-flex; align-items: center; gap: 10px; padding: 8px 16px 8px 8px; border-radius: 999px; cursor: pointer;
+  box-shadow: 0 0 0 1px var(--rule); transition: box-shadow .25s var(--ease), transform .2s var(--ease); }
+.look:active { transform: scale(.96); }
+.look[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--ink); }
+.look .sw { width: 30px; height: 30px; border-radius: 50%; background-color: var(--a);
+  background-image: radial-gradient(var(--b) 32%, transparent 34%); background-size: 5px 5px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.06); }
+.looks-note { margin-top: 18px; font-size: 15px; color: var(--quiet); }
+
+/* Plans */
+.plans { margin-top: 52px; display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); }
+.plan { background: var(--surface); border-radius: 26px; padding: 30px; box-shadow: 0 0 0 1px var(--rule); }
 .plan h3 { font-weight: 600; font-size: 22px; letter-spacing: -.02em; }
-.plan ul { padding-left: 20px; margin-top: 14px; color: var(--quiet); }
-.plan li + li { margin-top: 6px; }
-.plan.premium { border: 2px solid var(--tint); }
+.plan .p { color: var(--quiet); margin-top: 4px; font-size: 16px; }
+.plan ul { list-style: none; padding: 0; margin-top: 18px; display: grid; gap: 10px; }
+.plan li { padding-left: 26px; position: relative; }
+.plan li::before { content: ""; position: absolute; left: 2px; top: .52em; width: 12px; height: 7px; border-left: 2px solid var(--kept);
+  border-bottom: 2px solid var(--kept); transform: rotate(-45deg); }
+.plan.premium { box-shadow: 0 0 0 2px var(--tint); }
 
-details { border-bottom: 1px solid var(--rule); padding: 20px 0; max-width: 720px; }
-details:first-of-type { margin-top: 32px; border-top: 1px solid var(--rule); }
+/* Last: the light again, and the door. */
+.end { position: relative; min-height: 92vh; min-height: 92svh; display: grid; align-items: center; text-align: center; }
+.end .pic { position: absolute; inset: 0; }
+.end .copy { position: relative; display: grid; justify-items: center; gap: 26px; padding-top: 40px; padding-bottom: 40px; }
+.end h2 { margin: 0 auto; max-width: 13ch; }
+.end .ring { width: 108px; height: 108px; border-radius: 26px; box-shadow: 0 22px 50px -18px rgba(13,22,36,.5); }
+
+details { border-bottom: 1px solid var(--rule); padding: 20px 0; max-width: 760px; }
+details:first-of-type { margin-top: 36px; border-top: 1px solid var(--rule); }
 summary { cursor: pointer; font-weight: 600; font-size: 19px; list-style: none; display: flex; justify-content: space-between; gap: 16px; }
 summary::-webkit-details-marker { display: none; }
-summary::after { content: "+"; color: var(--tint); font-weight: 500; }
-details[open] summary::after { content: "\2212"; }
-details p { color: var(--quiet); margin-top: 10px; }
+summary::after { content: "+"; color: var(--tint); font-weight: 500; transition: transform .25s var(--ease); }
+details[open] summary::after { transform: rotate(45deg); }
+details p { color: var(--quiet); margin-top: 10px; max-width: 62ch; }
 
-footer { padding: 48px 0 64px; border-top: 1px solid var(--rule); color: var(--quiet); font-size: 15px; }
-footer .page { display: flex; flex-wrap: wrap; gap: 20px 28px; }
+footer { padding: 48px 0 calc(64px + env(safe-area-inset-bottom)); border-top: 1px solid var(--rule); color: var(--quiet); font-size: 15px; }
+footer .wrap { display: flex; flex-wrap: wrap; gap: 14px 28px; }
 footer a { color: var(--quiet); }
-@media (max-width: 600px) { section { padding: 72px 0; } .hero .page { padding-bottom: 48px; } }
+
+.reveal { opacity: 0; transform: translateY(18px); }
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; }
+  .alarm.ringing, .alarm.ringing .dot { animation: none; }
+  .loop { height: auto; }
+  .loop .pin { position: relative; height: auto; padding: 96px 0; }
+  .say { height: auto; display: grid; gap: 22px; }
+  .say > * { position: static; opacity: 1 !important; }
+  .verse .marks i { clip-path: none; }
+}
 </style>
 </head>
 <body>
+<canvas id="stage" aria-hidden="true"></canvas>
 
-<header class="hero" id="top">
-  <canvas id="sky" aria-hidden="true"></canvas>
-  <div class="page">
-    <div class="mark"><img src="assets/risen-icon.png" alt=""> Risen</div>
-    <h1>An alarm that stops when you open your Bible.</h1>
-    <a class="soon" href="#how">Coming soon to iPhone and iPad</a>
+<header class="top">
+  <div class="wrap">
+    <a class="mark" href="#top" aria-label="Risen, back to top"><img src="assets/risen-icon.png" alt=""> Risen</a>
+    <a class="get" id="get" href="https://apps.apple.com/app/id6792408005"><img src="assets/risen-icon.png" alt=""> Get Risen</a>
   </div>
 </header>
 
 <main>
-<section id="how">
-  <div class="page">
-    <h2>Three minutes, before anything else.</h2>
-    <ol class="steps">
-      <li><b>It rings.</b><span>Your alarm names a verse, chosen at random.</span></li>
-      <li><b>You open your Bible.</b><span>Find the page and point your camera at it. The alarm stops when the verse is there.</span></li>
-      <li><b>You pray.</b><span>A short prayer on that verse opens, and the day is kept as a page in your Book.</span></li>
-    </ol>
+<section class="hero" id="top">
+  <div class="pic" data-dither="sky"><img class="fallback" src="assets/plate-creation-of-light.png" alt=""></div>
+  <div class="wrap copy">
+    <h1 id="headline">An alarm that stops when you open your Bible.</h1>
+    <p class="sub">When it rings, it names a verse. Find it in your Bible, point your camera at the page, and the alarm stops.</p>
+    <div class="act">
+      <a class="badge" href="https://apps.apple.com/app/id6792408005" data-cta="hero"><img src="assets/v2/app-store-badge.svg" alt="Download on the App Store"></a>
+      <span class="note">Free on iPhone and iPad.</span>
+    </div>
   </div>
 </section>
 
-<section id="random">
-  <div class="page read">
-    <h2>Nobody picks the verse.</h2>
-    <p class="lede">Not us, and not an algorithm. It comes at random, so you can't get ready for it the night before. Some days it will seem unrelated. Some days it won't.</p>
-    <p class="verse">I can do all things through Christ who gives me strength.</p>
-    <p class="cite">Philippians 4:13, Berean Standard Bible</p>
+<section class="loop" id="how" aria-label="How it works">
+  <div class="pin">
+    <div class="scene">
+      <div class="alarm ringing" id="alarm" role="img" aria-label="An alarm ringing for Philippians 4:13">
+        <span class="dot" aria-hidden="true">
+          <svg class="bell" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 22Zm7-6V11a7 7 0 0 0-5.5-6.84V3.5a1.5 1.5 0 0 0-3 0v.66A7 7 0 0 0 5 11v5l-2 2v1h18v-1l-2-2Z"/></svg>
+          <svg class="done" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+        </span>
+        <span class="clock" id="clock">7:00</span>
+        <span class="find">Find <span class="ref">Philippians 4:13</span></span>
+        <span class="done">Stopped. <span class="ref">Philippians 4:13</span></span>
+      </div>
+      <button class="hear" id="hear" type="button" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4Zm12.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4Z"/></svg>
+        <span>Hear it</span>
+      </button>
+      <div class="book pic" data-dither="book" role="img" aria-label="A Bible falling open">
+        <img class="fallback" src="assets/v2/book-open.jpg" alt="" style="object-fit:contain">
+        <div class="scan" id="scan"></div>
+      </div>
+      <div class="say">
+        <p class="line" data-step="0">It rings, and names a verse.<small>Any time you set it. Silent mode and Focus too.</small></p>
+        <p class="line" data-step="1">Open your Bible to it.<small>Paper, an app or a website. Any translation.</small></p>
+        <p class="line" data-step="2">Point your camera at the page.<small>When Risen sees the verse, the alarm stops.</small></p>
+        <div class="verse" id="verse">
+          <blockquote><span class="marks" aria-hidden="true"></span><span class="t">I can do all things through Christ who gives me strength.</span></blockquote>
+          <cite>Philippians 4:13, Berean Standard Bible</cite>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
-<section id="plans">
-  <div class="page">
-    <h2>Free to use. Premium to make it yours.</h2>
+<section class="block" id="after">
+  <div class="wrap">
+    <h2 class="reveal">Then it stays with you.</h2>
+    <p class="lede reveal">After the alarm stops, Risen opens a short prayer on the verse you found. There's no snooze, and nothing to scroll.</p>
+    <div class="screens">
+      <figure class="screen reveal">
+        <div class="phone"><div class="pic" data-dither="screen" data-src="assets/v2/02-pray.jpg"><img class="fallback" src="assets/v2/02-pray.jpg" alt="A short prayer on Psalm 23:1, one line at a time." loading="lazy"></div></div>
+        <p><b>A short prayer.</b><span>Written on the verse you found.</span></p>
+      </figure>
+      <figure class="screen reveal">
+        <div class="phone"><div class="pic" data-dither="screen" data-src="assets/v2/03-reflect.jpg"><img class="fallback" src="assets/v2/03-reflect.jpg" alt="How do you feel? Grateful, Peaceful, Hopeful, Moved, Inspired." loading="lazy"></div></div>
+        <p><b>A note, if you want one.</b><span>Pick how it felt, or write a line.</span></p>
+      </figure>
+      <figure class="screen reveal">
+        <div class="phone"><div class="pic" data-dither="screen" data-src="assets/v2/04-come-back.jpg"><img class="fallback" src="assets/v2/04-come-back.jpg" alt="The Book: 37 verses read, with a calendar of the days." loading="lazy"></div></div>
+        <p><b>Every verse, kept.</b><span>Your Book shows each verse you've read.</span></p>
+      </figure>
+      <figure class="screen reveal">
+        <div class="phone"><div class="pic" data-dither="screen" data-src="assets/v2/05-read-beyond.jpg"><img class="fallback" src="assets/v2/05-read-beyond.jpg" alt="Psalm 23 in the Bible tab, with verse 1 marked as read." loading="lazy"></div></div>
+        <p><b>The whole chapter.</b><span>Read around it in BSB, WEB or KJV.</span></p>
+      </figure>
+      <figure class="screen reveal">
+        <div class="phone"><div class="pic" data-dither="screen" data-src="assets/v2/06-habit.jpg"><img class="fallback" src="assets/v2/06-habit.jpg" alt="Alarms at 6:30 AM, 1:30 PM and 5:45 PM." loading="lazy"></div></div>
+        <p><b>Any alarm, any hour.</b><span>Wake up, a nap, the gym. You choose.</span></p>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="any">
+  <div class="wrap any">
+    <div>
+      <h2 class="reveal">Any Bible works.</h2>
+      <p class="lede reveal">Risen reads the page on your phone and checks it for the verse your alarm named.</p>
+      <ul class="facts reveal" style="margin-top:40px">
+        <li><b>Printed Bibles</b><span>Any edition, any translation.</span></li>
+        <li><b>Apps and websites</b><span>Point at the screen, or use a screenshot.</span></li>
+        <li><b>No Bible nearby</b><span>After a while you can use a photo, or type the verse.</span></li>
+        <li><b>On your phone</b><span>Photos stay on your phone. Turn on Smart reading and only the words it reads go online.</span></li>
+      </ul>
+    </div>
+    <div class="page-pic pic reveal" data-dither="screen" data-src="assets/v2/01-open-your-bible.jpg" data-focus="0.5,1">
+      <img class="fallback" src="assets/v2/01-open-your-bible.jpg" alt="Risen reading a printed page of Psalm 23." loading="lazy">
+    </div>
+  </div>
+</section>
+
+<section class="block" id="looks">
+  <div class="wrap">
+    <h2 class="reveal">Make it yours.</h2>
+    <p class="lede reveal">Every look has a light and a dark side. Try one: this page uses the same colours.</p>
+    <div class="looks reveal" role="group" aria-label="Looks" id="looksRow"></div>
+    <p class="looks-note reveal">Premium unlocks every look, app icon and alarm sound.</p>
+  </div>
+</section>
+
+<section class="block" id="plans">
+  <div class="wrap">
+    <h2 class="reveal">Free to start.</h2>
     <div class="plans">
-      <div class="plan">
+      <div class="plan reveal">
         <h3>Risen</h3>
+        <p class="p">Free</p>
         <ul>
-          <li>One verse alarm, with the full wake</li>
+          <li>One verse alarm</li>
           <li>A prayer with each verse, and your notes</li>
           <li>The whole Bible, in three translations</li>
           <li>Every verse you read, kept in your Book</li>
           <li>Today's verse on your Lock Screen</li>
         </ul>
       </div>
-      <div class="plan premium">
+      <div class="plan premium reveal">
         <h3>Risen Premium</h3>
+        <p class="p">Weekly, yearly or Lifetime. Yearly starts with a free week.</p>
         <ul>
           <li>Unlimited verse alarms</li>
           <li>Both prayers and the devotionals</li>
@@ -154,8 +368,17 @@ footer a { color: var(--quiet); }
   </div>
 </section>
 
-<section id="support">
-  <div class="page">
+<section class="end" id="get-risen">
+  <div class="pic" data-dither="dawn"><img class="fallback" src="assets/plate-creation-of-light.png" alt=""></div>
+  <div class="wrap copy">
+    <img class="ring" src="assets/risen-icon.png" alt="">
+    <h2>Try it with your next alarm.</h2>
+    <a class="badge" href="https://apps.apple.com/app/id6792408005" data-cta="end"><img src="assets/v2/app-store-badge.svg" alt="Download on the App Store"></a>
+  </div>
+</section>
+
+<section class="block" id="support">
+  <div class="wrap">
     <h2>Questions</h2>
     <p class="lede">A person answers: <a href="mailto:satangscorgi@gmail.com">satangscorgi@gmail.com</a></p>
     <details><summary>What if my Bible isn't with me?</summary><p>After a little while, Risen offers a photo instead: a screenshot of the verse from a Bible app or website works. If that isn't possible either, you can type the verse. There's no snooze.</p></details>
@@ -169,7 +392,7 @@ footer a { color: var(--quiet); }
 </main>
 
 <footer>
-  <div class="page">
+  <div class="wrap">
     <span>Risen</span>
     <a href="https://satangcorgi.github.io/risen-legal/privacy.html">Privacy Policy</a>
     <a href="https://satangcorgi.github.io/risen-legal/terms.html">Terms of Use</a>
@@ -178,63 +401,8 @@ footer a { color: var(--quiet); }
   </div>
 </footer>
 
-<script>
-// Ordered (Bayer 8x8) dither of Doré's plate in two close tones, redrawn at
-// 12 fps as the light slowly breathes. Still under reduced motion.
-(() => {
-  const canvas = document.getElementById('sky');
-  const ctx = canvas.getContext('2d');
-  const bayer = [0,32,8,40,2,34,10,42,48,16,56,24,50,18,58,26,12,44,4,36,14,46,6,38,60,28,52,20,62,30,54,22,
-    3,35,11,43,1,33,9,41,51,19,59,27,49,17,57,25,15,47,7,39,13,45,5,37,63,31,55,23,61,29,53,21];
-  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const plate = new Image();
-  plate.src = 'assets/plate-creation-of-light.png';
-  const css = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-  const rgb = hex => [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16));
-  let gray = null, clearFrom = 0.5;
-  const start = performance.now();
-  plate.onload = () => { resize(); if (!still) requestAnimationFrame(loop); };
-  addEventListener('resize', resize);
-  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => draw(0));
-  function resize() {
-    const scale = 0.5; // one dot per two CSS pixels
-    canvas.width = Math.max(1, Math.ceil(canvas.clientWidth * scale));
-    canvas.height = Math.max(1, Math.ceil(canvas.clientHeight * scale));
-    const off = document.createElement('canvas');
-    off.width = canvas.width; off.height = canvas.height;
-    const o = off.getContext('2d');
-    const ratio = Math.max(off.width / plate.width, off.height / (plate.height * 0.62));
-    o.drawImage(plate, (off.width - plate.width * ratio) / 2, 0, plate.width * ratio, plate.height * ratio);
-    gray = o.getImageData(0, 0, off.width, off.height).data;
-    // The sky ends above the words: dots thin out and stop 24px above the mark.
-    const words = document.querySelector('.hero .mark');
-    clearFrom = Math.max(0.15, (words.getBoundingClientRect().top - canvas.getBoundingClientRect().top - 24) / canvas.clientHeight);
-    draw(0);
-  }
-  function draw(t) {
-    const w = canvas.width, h = canvas.height;
-    if (!gray) return;
-    const out = ctx.createImageData(w, h);
-    const ground = rgb(css('--ground')), dot = rgb(css('--sky-dot'));
-    const lift = still ? 0 : 0.06 * (1 - Math.cos(t / 16000)) / 2;
-    for (let y = 0; y < h; y++) {
-      const fade = Math.max(0, 1 - Math.max(0, (y / h - clearFrom * 0.55) / (clearFrom * 0.45))); // dissolves before the words
-      for (let x = 0; x < w; x++) {
-        const i = (y * w + x) * 4;
-        const lum = (gray[i] * 0.2126 + gray[i + 1] * 0.7152 + gray[i + 2] * 0.0722) / 255;
-        const dark = Math.min(1, Math.max(0, (1 - lum) * 1.2 - 0.12 + lift)) * fade;
-        const c = dark > (bayer[((y & 7) << 3) + (x & 7)] + 0.5) / 64 ? dot : ground;
-        out.data[i] = c[0]; out.data[i + 1] = c[1]; out.data[i + 2] = c[2]; out.data[i + 3] = 255;
-      }
-    }
-    ctx.putImageData(out, 0, 0);
-  }
-  let last = 0;
-  function loop(now) {
-    if (now - last > 83) { draw(now - start); last = now; }
-    requestAnimationFrame(loop);
-  }
-})();
-</script>
+<script src="vendor/gsap.min.js"></script>
+<script src="vendor/ScrollTrigger.min.js"></script>
+<script type="module" src="assets/v2/site.js"></script>
 </body>
 </html>
