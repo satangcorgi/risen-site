@@ -141,10 +141,10 @@ async function build() {
   stage.add({ el: heroPhoneEl, tex: stage.texture(phoneShot), texW: phoneShot.width, texH: phoneShot.height,
     focus: [0.5, 0], gain: 1.15, bias: -0.07, cell: 2, radius: 30, develop: 1, role: 'screen' });
 
-  const atlas = await loadImage('assets/v2/book-atlas.jpg');
+  const atlas = await loadImage('assets/v2/book-atlas-512.jpg');
   items.book = stage.add({
     el: document.querySelector('[data-dither="book"]'), tex: stage.texture(atlas, { gray: true }), gray: true,
-    texW: 320, texH: 320, atlas: 8, frame: 0, focus: [0.5, 0.52], gain: 1.08, bias: -0.06, cell: 1.5, role: 'book',
+    texW: 512, texH: 512, atlas: 8, frame: 0, focus: [0.5, 0.52], gain: 1.3, bias: -0.04, cell: 1.5, role: 'book',
   });
 
   // The verse: drawn as dots first, then developed into ink.
@@ -171,7 +171,7 @@ async function build() {
             if (!v.isIntersecting) return;
             watch.disconnect();
             const i = [...document.querySelectorAll('[data-dither="screen"]')].indexOf(el);
-            gsap.to(it, { develop: 1, duration: 1.4, ease: 'power1.inOut', delay: 0.2 + Math.max(0, i) * 0.12 });
+            gsap.to(it, { develop: 1, duration: 0.85, ease: 'power1.inOut', delay: 0.1 + Math.max(0, i) * 0.07 });
           }, { threshold: 0.35 });
           watch.observe(row);
         }

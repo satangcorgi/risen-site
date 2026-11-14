@@ -106,7 +106,8 @@ void main() {
   }
   if (uFadeBottom > 0.0) dark *= smoothstep(0.0, uFadeBottom, 1.0 - local.y);
   if (uFadeTop > 0.0) dark *= smoothstep(0.0, uFadeTop, local.y);
-  dark = clamp(dark, 0.0, 1.0);
+  // A small floor: near-white paper and fading edges carry no stray dots.
+  dark = clamp((dark - 0.035) / 0.965, 0.0, 1.0);
   dark = dark * dark * (3.0 - 2.0 * dark);
 
   bool on = dark > bayer8(cell);
