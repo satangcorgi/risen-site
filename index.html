@@ -198,6 +198,9 @@ h2 { font-weight: 500; font-size: clamp(36px, 5.6vw, 72px); line-height: 1; lett
 .look .sw { width: 30px; height: 30px; border-radius: 50%; background-color: var(--a);
   background-image: radial-gradient(var(--b) 46%, transparent 48%); background-size: 4px 4px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.06); }
 .looks-note { margin-top: 18px; font-size: 15px; color: var(--quiet); }
+.looks-grid { display: grid; gap: 40px; align-items: center; }
+@media (min-width: 900px) { .looks-grid { grid-template-columns: 1fr 1fr; } }
+.look-plate { aspect-ratio: 4 / 3; border-radius: 28px; overflow: hidden; box-shadow: 0 0 0 1px var(--rule); }
 
 /* Plans */
 .plans { margin-top: 52px; display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); }
@@ -352,8 +355,13 @@ footer a { color: var(--quiet); }
   <div class="wrap">
     <h2 class="reveal">Make it yours.</h2>
     <p class="lede reveal">Every look comes in light and dark. Try one: this page uses the same colors.</p>
-    <div class="looks reveal" role="group" aria-label="Looks" id="looksRow"></div>
-    <p class="looks-note reveal">Premium unlocks every look, app icon and alarm sound.</p>
+    <div class="looks-grid">
+      <div>
+        <div class="looks reveal" role="group" aria-label="Looks" id="looksRow"></div>
+        <p class="looks-note reveal">Premium unlocks every look, app icon and alarm sound.</p>
+      </div>
+      <div class="look-plate pic reveal" data-dither="plate" aria-hidden="true"></div>
+    </div>
   </div>
 </section>
 

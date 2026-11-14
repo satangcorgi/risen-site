@@ -124,6 +124,11 @@ async function build() {
     focus: [0.5, 0.2], gain: 2.0, bias: 0, base: reduce ? -0.7 : 0.15, fadeBottom: 0.75, cell: 2,
     light: [0, 0, 300], lightAmt: 0.85, role: 'sky',
   });
+  // The looks panel: the same plate, close on the light, re-inked live.
+  items.plate = stage.add({
+    el: document.querySelector('[data-dither="plate"]'), tex: plateTex, texW: plate.width, texH: plate.height,
+    focus: [0.35, 0.25], gain: 2.1, bias: -0.55, cell: 2, radius: 28, role: 'plate',
+  });
   items.dawn = stage.add({
     el: document.querySelector('[data-dither="dawn"]'), tex: plateTex, texW: plate.width, texH: plate.height,
     focus: [0.5, 0.3], gain: 2.0, bias: -0.8, fadeTop: 0.3, fadeBottom: 0.3, cell: 2,
@@ -139,7 +144,7 @@ async function build() {
   const atlas = await loadImage('assets/v2/book-atlas.jpg');
   items.book = stage.add({
     el: document.querySelector('[data-dither="book"]'), tex: stage.texture(atlas, { gray: true }), gray: true,
-    texW: 320, texH: 320, atlas: 8, frame: 0, focus: [0.5, 0.52], gain: 1.2, bias: -0.04, cell: 2, role: 'book',
+    texW: 320, texH: 320, atlas: 8, frame: 0, focus: [0.5, 0.52], gain: 1.08, bias: -0.06, cell: 1.5, role: 'book',
   });
 
   // The verse: drawn as dots first, then developed into ink.
@@ -393,8 +398,10 @@ function frame(now) {
     } else if (it.role === 'sky') {
       it.ground = ink.ground; it.dot = mix(ink.dots, ink.tint, 0.18);
       it.light = reduce ? null : [pointer.x, pointer.y, radius];
+    } else if (it.role === 'plate') {
+      it.ground = ink.sky; it.dot = mix(ink.dots, ink.tint, 0.35);
     } else if (it.role === 'book') {
-      it.ground = ink.ground; it.dot = mix(ink.dots, ink.ink, 0.42);
+      it.ground = ink.ground; it.dot = mix(ink.dots, ink.ink, 0.62);
     } else if (it.role === 'screen') {
       it.ground = ink.ground; it.dot = mix(ink.dots, ink.ink, 0.3);
     } else if (it.role === 'verse') {
