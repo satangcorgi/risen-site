@@ -159,6 +159,7 @@ export class Stage {
     gl.enable(gl.SCISSOR_TEST);
     this.resize();
     addEventListener('resize', () => this.resize());
+    window.visualViewport?.addEventListener('resize', () => this.resize());
   }
 
   program(vs, fs) {
@@ -178,9 +179,15 @@ export class Stage {
     return p;
   }
 
+  // The canvas is exactly the visible window. iPhone Safari's 100vh is the
+  // height with its toolbars hidden, so a CSS-sized canvas would stretch every
+  // picture down the page while the toolbars show.
   resize() {
     this.dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const w = Math.ceil(innerWidth * this.dpr), h = Math.ceil(innerHeight * this.dpr);
+    const cssW = innerWidth, cssH = innerHeight;
+    this.canvas.style.width = cssW + 'px';
+    this.canvas.style.height = cssH + 'px';
+    const w = Math.ceil(cssW * this.dpr), h = Math.ceil(cssH * this.dpr);
     if (this.canvas.width !== w || this.canvas.height !== h) {
       this.canvas.width = w;
       this.canvas.height = h;
@@ -218,6 +225,7 @@ export class Stage {
   }
 
   draw() {
+    if (this.canvas.style.height !== innerHeight + 'px' || this.canvas.style.width !== innerWidth + 'px') this.resize();
     const gl = this.gl, u = this.u, dpr = this.dpr;
     const W = this.canvas.width, H = this.canvas.height;
     gl.viewport(0, 0, W, H);
