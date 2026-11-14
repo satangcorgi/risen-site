@@ -34,7 +34,7 @@
 <link rel="preload" as="image" href="assets/v2/01-open-your-bible.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500;600&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,500;1,7..72,400&display=optional" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500;600&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,500;1,7..72,400&display=swap" rel="stylesheet">
 <style>
 :root {
   --ground: #F4F8FD; --surface: #FFFFFF; --ink: #0D1624; --tint: #2F5BC8; --kept: #1E7A46;
@@ -53,7 +53,7 @@ img { display: block; max-width: 100%; }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 /* The stage: one canvas behind everything draws the dots. */
-#stage { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+/* Each dithered picture draws into its own canvas inside its element. */
 main, footer { position: relative; }
 .pic { position: relative; }
 .pic > img.fallback { width: 100%; height: 100%; object-fit: cover; }
@@ -96,7 +96,7 @@ h1 { font-weight: 500; font-size: clamp(46px, 8.4vw, 112px); line-height: .98; l
 .hero p.sub { margin-top: 22px; font-size: clamp(18px, 1.6vw, 21px); max-width: 33ch; color: var(--ink); }
 .hero .act { margin-top: 30px; display: flex; flex-wrap: wrap; align-items: center; gap: 14px 22px; }
 .hero .act .note { font-size: 15px; color: var(--quiet); }
-.hero .copy { width: 100%; }
+.hero .copy { width: 100%; z-index: 1; }
 /* A soft clearing behind the words, so no dot ever sits between letters. */
 .hero .copy::before { content: ""; position: absolute; z-index: -1; left: -6%; right: 30%; top: -14%; bottom: -10%;
   background: radial-gradient(closest-side, var(--ground) 62%, color-mix(in srgb, var(--ground) 70%, transparent) 80%, transparent);
@@ -109,7 +109,8 @@ h1 { font-weight: 500; font-size: clamp(46px, 8.4vw, 112px); line-height: .98; l
 @media (min-width: 900px) { .hero h1 { font-size: clamp(46px, 6.2vw, 92px); max-width: 10.5ch; } }
 @media (max-width: 899px) {
   .hero-phone { right: 50%; transform: translateX(50%); top: max(68px, 8svh); width: min(30vw, 15svh, 140px); }
-  .hero .copy { padding-top: calc(max(68px, 8svh) + min(30vw, 15svh, 140px) * 2.173 + 20px); padding-bottom: 28px; }
+  .hero .copy { --top: calc(max(68px, 8svh) + min(30vw, 15svh, 140px) * 2.173 + 20px); padding-top: var(--top); padding-bottom: 28px; }
+  .hero .copy::before { top: calc(var(--top) - 24px); }
   .hero .act { margin-top: 22px; } .hero p.sub { margin-top: 14px; }
   .get { opacity: 1; transform: none; pointer-events: auto; }
 }
@@ -254,7 +255,6 @@ footer a { color: var(--quiet); }
 </style>
 </head>
 <body>
-<canvas id="stage" aria-hidden="true"></canvas>
 
 <header class="top">
   <div class="wrap">

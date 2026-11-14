@@ -97,7 +97,7 @@ gsap.registerPlugin(ScrollTrigger);
 let stage = null;
 try {
   if (/nogl/.test(location.search)) throw new Error('nogl requested'); // test hook for the no-WebGL page
-  stage = new Stage(document.getElementById('stage')); document.documentElement.classList.add('gl');
+  stage = new Stage(document.createElement('canvas')); document.documentElement.classList.add('gl');
 }
 catch (e) { console.warn('Risen: drawing without WebGL2', e); }
 
@@ -157,34 +157,39 @@ async function build() {
   items.verse = stage.add({ el: document.querySelector('#verse blockquote'), tex: null, textMode: 1, gain: 1, bias: -0.35, cell: 2, role: 'verse' });
   layoutVerse();
   document.fonts.ready.then(layoutVerse);
+  document.fonts.addEventListener?.('loadingdone', () => requestAnimationFrame(layoutVerse));
   addEventListener('resize', () => requestAnimationFrame(layoutVerse));
 
-  // Screens: lazy, and each develops from dots when it comes into view.
-  const screenEls = document.querySelectorAll('[data-dither="screen"]');
-  const io = new IntersectionObserver(entries => {
+  // Screens: each group (the carousel row, or a single picture) loads as it
+  // nears, and develops from dots once, together, when it comes into view.
+  // A screen that arrives after its group has developed starts sharp, so a
+  // card swiped in later never shows half-developed static.
+  const groups = new Map();
+  document.querySelectorAll('[data-dither="screen"]').forEach(el => {
+    const g = el.closest('.screens') || el;
+    if (!groups.has(g)) groups.set(g, { els: [], items: [], developed: reduce });
+    groups.get(g).els.push(el);
+  });
+  const loadGroup = (g, group) => group.els.forEach((el, i) => loadImage(el.dataset.src).then(img => {
+    const focus = (el.dataset.focus || '0.5,0').split(',').map(Number);
+    const radius = parseFloat(getComputedStyle(el).borderTopLeftRadius) || 0;
+    const it = stage.add({ el, tex: stage.texture(img), texW: img.width, texH: img.height, focus,
+      gain: 1.15, bias: -0.07, cell: 2, radius, develop: group.developed ? 1 : 0, role: 'screen', order: i });
+    group.items.push(it);
+  }));
+  const near = new IntersectionObserver(entries => {
+    for (const e of entries) if (e.isIntersecting) { near.unobserve(e.target); loadGroup(e.target, groups.get(e.target)); }
+  }, { rootMargin: '80% 0px' });
+  const seen = new IntersectionObserver(entries => {
     for (const e of entries) {
       if (!e.isIntersecting) continue;
-      io.unobserve(e.target);
-      const el = e.target;
-      loadImage(el.dataset.src).then(img => {
-        const focus = (el.dataset.focus || '0.5,0').split(',').map(Number);
-        const radius = parseFloat(getComputedStyle(el).borderTopLeftRadius) || 0;
-        const it = stage.add({ el, tex: stage.texture(img), texW: img.width, texH: img.height, focus,
-          gain: 1.15, bias: -0.07, cell: 2, radius, develop: reduce ? 1 : 0, role: 'screen' });
-        if (!reduce) {
-          const row = el.closest('.screens') || el;
-          const watch = new IntersectionObserver(([v]) => {
-            if (!v.isIntersecting) return;
-            watch.disconnect();
-            const i = [...document.querySelectorAll('[data-dither="screen"]')].indexOf(el);
-            gsap.to(it, { develop: 1, duration: 0.6, ease: 'power1.inOut', delay: 0.05 + Math.max(0, i) * 0.05 });
-          }, { threshold: 0.35 });
-          watch.observe(row);
-        }
-      });
+      seen.unobserve(e.target);
+      const group = groups.get(e.target);
+      group.developed = true;
+      for (const it of group.items) gsap.to(it, { develop: 1, duration: 0.5, ease: 'power1.inOut', delay: 0.05 + it.order * 0.05 });
     }
-  }, { rootMargin: '60% 0px' });
-  screenEls.forEach(el => io.observe(el));
+  }, { threshold: 0.3 });
+  for (const g of groups.keys()) { near.observe(g); if (!reduce) seen.observe(g); }
 
 }
 
@@ -202,7 +207,10 @@ function layoutVerse() {
   const ctx = cv.getContext('2d');
   const cs = getComputedStyle(t);
   ctx.scale(dpr, dpr);
-  ctx.font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+  // Draw with the face the page is actually showing, so dots and the real
+  // text line up letter for letter.
+  const family = document.fonts.check(`${cs.fontSize} Literata`) ? cs.fontFamily : 'Georgia, serif';
+  ctx.font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${family}`;
   ctx.fillStyle = '#000';
   ctx.textBaseline = 'alphabetic';
   const m = ctx.measureText('Hg');
@@ -314,35 +322,39 @@ hear.addEventListener('click', () => {
 });
 new IntersectionObserver(([e]) => { sound.inView = e.isIntersecting; sound.sync(); }).observe(document.querySelector('.loop'));
 
+let verseMeasured = false;
 function setLoop(p) {
+  // Measure the verse once more just before it shows: the serif may have
+  // finished loading since the first layout, and the strokes must fit it.
+  if (p > 0.6 && !verseMeasured) { verseMeasured = true; if (stage) layoutVerse(); else layoutMarks(); }
   // Step captions cross-fade at their edges.
-  const steps = [[0, 0.2], [0.2, 0.52], [0.52, 0.72]];
+  const steps = [[0, 0.2], [0.2, 0.5], [0.5, 0.66]];
   steps.forEach(([a, b], i) => {
     const o = (i === 0 ? 1 : smooth(span(p, a, a + 0.04))) * (1 - smooth(span(p, b - 0.04, b)));
     show(lines[i], o);
   });
-  const verseIn = smooth(span(p, 0.7, 0.75));
+  const verseIn = smooth(span(p, 0.65, 0.7));
   show(verseBox, verseIn);
   if (items.book) {
-    const o = smooth(span(p, 0.18, 0.54));
+    const o = smooth(span(p, 0.18, 0.5));
     const f = o < 0.35 ? o / 0.35 * 14 : o < 0.5 ? 14 + (o - 0.35) / 0.15 * 24 : 38 + (o - 0.5) / 0.5 * 18;
     items.book.frame = Math.min(55.999, f);
   }
   // The camera reads the page.
-  const s = span(p, 0.55, 0.68);
+  const s = span(p, 0.52, 0.63);
   scan.style.opacity = (s > 0 && s < 1 ? Math.sin(s * Math.PI) : 0).toFixed(3);
   scan.style.top = `${28 + s * 44}%`;
-  const stopped = p >= 0.66;
+  const stopped = p >= 0.62;
   if (stopped !== wasStopped) { wasStopped = stopped; sound.sync(); }
   alarm.classList.toggle('stopped', stopped);
   alarm.classList.toggle('ringing', !stopped && !reduce);
   // Dots develop into ink, then the real text takes over so the pen can go under it.
-  const handoff = span(p, 0.84, 0.865);
-  if (items.verse) { items.verse.develop = smooth(span(p, 0.74, 0.84)); items.verse.alpha = verseIn * (1 - handoff); }
+  const handoff = span(p, 0.78, 0.8);
+  if (items.verse) { items.verse.develop = smooth(span(p, 0.69, 0.78)); items.verse.alpha = verseIn * (1 - handoff); }
   verseText.style.color = stage ? `color-mix(in srgb, var(--ink) ${(handoff * 100).toFixed(1)}%, transparent)` : '';
   const marks = verseBox.querySelectorAll('.marks i');
   marks.forEach((m, i) => {
-    const a = 0.86 + (i / marks.length) * 0.09, b = a + 0.09 / marks.length;
+    const a = 0.8 + (i / marks.length) * 0.08, b = a + 0.08 / marks.length;
     m.style.clipPath = `inset(0 ${((1 - span(p, a, b)) * 100).toFixed(1)}% 0 0)`;
   });
 }

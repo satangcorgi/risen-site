@@ -159,7 +159,6 @@ export class Stage {
     gl.enable(gl.SCISSOR_TEST);
     this.resize();
     addEventListener('resize', () => this.resize());
-    window.visualViewport?.addEventListener('resize', () => this.resize());
   }
 
   program(vs, fs) {
@@ -179,20 +178,14 @@ export class Stage {
     return p;
   }
 
-  // The canvas is exactly the visible window. iPhone Safari's 100vh is the
-  // height with its toolbars hidden, so a CSS-sized canvas would stretch every
-  // picture down the page while the toolbars show.
-  resize() {
-    this.dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const cssW = innerWidth, cssH = innerHeight;
-    this.canvas.style.width = cssW + 'px';
-    this.canvas.style.height = cssH + 'px';
-    const w = Math.ceil(cssW * this.dpr), h = Math.ceil(cssH * this.dpr);
-    if (this.canvas.width !== w || this.canvas.height !== h) {
-      this.canvas.width = w;
-      this.canvas.height = h;
-    }
+  // The WebGL canvas is offscreen. It only needs to be as large as the
+  // largest picture; each picture is copied into its own canvas in the page.
+  ensureSize(w, h) {
+    if (this.canvas.width < w) this.canvas.width = w;
+    if (this.canvas.height < h) this.canvas.height = h;
   }
+
+  resize() { this.dpr = Math.min(window.devicePixelRatio || 1, 2); }
 
   texture(source, { gray = false } = {}) {
     const gl = this.gl;
@@ -214,37 +207,42 @@ export class Stage {
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
   }
 
+  // Each picture gets its own 2D canvas inside its element, so it scrolls
+  // with the page natively (a fixed overlay trails behind Safari's scrolling).
   add(item) {
     const merged = Object.assign({
       cell: 2, gain: 1, bias: 0, develop: 0, atlas: 0, frame: 0, contain: 0, focus: [0.5, 0.5],
       fadeTop: 0, fadeBottom: 0, radius: 0, textMode: 0, alpha: 1, light: null, lightAmt: 0,
       ground: [1, 1, 1], dot: [0, 0, 0], ink: [0, 0, 0], visible: true,
     }, item);
+    const view = document.createElement('canvas');
+    view.setAttribute('aria-hidden', 'true');
+    view.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none;';
+    merged.el.prepend(view);
+    merged.view = view;
+    merged.ctx = view.getContext('2d');
     this.items.push(merged);
     return merged;
   }
 
   draw() {
-    if (this.canvas.style.height !== innerHeight + 'px' || this.canvas.style.width !== innerWidth + 'px') this.resize();
     const gl = this.gl, u = this.u, dpr = this.dpr;
-    const W = this.canvas.width, H = this.canvas.height;
-    gl.viewport(0, 0, W, H);
-    gl.scissor(0, 0, W, H);
-    gl.clearColor(0, 0, 0, 0);
-    gl.clear(gl.COLOR_BUFFER_BIT);
-    gl.uniform2f(u.uRes, W, H);
+    const vh = innerHeight;
     for (const it of this.items) {
-      if (!it.visible || !it.tex || it.alpha <= 0) continue;
       const r = it.el.getBoundingClientRect();
-      if (r.bottom < 0 || r.top > innerHeight || r.width < 1 || r.height < 1) continue;
-      const x = Math.round(r.left * dpr), y = Math.round(r.top * dpr);
+      if (r.bottom < -80 || r.top > vh + 80 || r.width < 1 || r.height < 1) continue;
       const w = Math.round(r.width * dpr), h = Math.round(r.height * dpr);
-      const sx = Math.max(0, x), sy = Math.max(0, H - (y + h));
-      const sw = Math.min(W, x + w) - sx, sh = Math.min(H, H - y) - sy;
-      if (sw <= 0 || sh <= 0) continue;
-      gl.scissor(sx, sy, sw, sh);
+      if (it.view.width !== w || it.view.height !== h) { it.view.width = w; it.view.height = h; }
+      if (!it.visible || !it.tex || it.alpha <= 0) { if (it.drawn) { it.ctx.clearRect(0, 0, w, h); it.drawn = false; } continue; }
+      this.ensureSize(w, h);
+      const H = this.canvas.height;
+      gl.viewport(0, 0, w, h);
+      gl.scissor(0, 0, w, h);
+      gl.clearColor(0, 0, 0, 0);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.uniform2f(u.uRes, w, h);
       gl.bindTexture(gl.TEXTURE_2D, it.tex);
-      gl.uniform4f(u.uRect, x, y, w, h);
+      gl.uniform4f(u.uRect, 0, 0, w, h);
       gl.uniform2f(u.uTexSize, it.texW, it.texH);
       gl.uniform2f(u.uFocus, it.focus[0], it.focus[1]);
       gl.uniform1f(u.uContain, it.contain);
@@ -255,7 +253,7 @@ export class Stage {
       gl.uniform1f(u.uGain, it.gain);
       gl.uniform1f(u.uBias, it.bias);
       const L = it.light || [0, 0, 1];
-      gl.uniform3f(u.uLight, L[0] * dpr, L[1] * dpr, L[2] * dpr);
+      gl.uniform3f(u.uLight, (L[0] - r.left) * dpr, (L[1] - r.top) * dpr, L[2] * dpr);
       gl.uniform1f(u.uLightAmt, it.light ? it.lightAmt : 0);
       gl.uniform1f(u.uDevelop, it.develop);
       gl.uniform1f(u.uAtlas, it.atlas);
@@ -267,6 +265,9 @@ export class Stage {
       gl.uniform1f(u.uGray, it.gray ? 1 : 0);
       gl.uniform1f(u.uAlpha, it.alpha);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
+      it.ctx.clearRect(0, 0, w, h);
+      it.ctx.drawImage(this.canvas, 0, H - h, w, h, 0, 0, w, h);
+      it.drawn = true;
     }
   }
 }
