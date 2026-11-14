@@ -110,9 +110,10 @@ const loopState = { target: 0, p: 0 };
 
 async function build() {
   if (!stage) return;
-  const [plate, atlas] = await Promise.all([
+  const heroPhoneEl = document.querySelector('[data-dither="hero-phone"]');
+  const [plate, phoneShot] = await Promise.all([
     loadImage('assets/plate-creation-of-light.png'),
-    loadImage('assets/v2/book-atlas.jpg'),
+    loadImage(heroPhoneEl.dataset.src),
   ]);
   const plateTex = stage.texture(plate);
 
@@ -120,7 +121,7 @@ async function build() {
   // the page opens fully dotted and the light comes through.
   items.sky = stage.add({
     el: document.querySelector('[data-dither="sky"]'), tex: plateTex, texW: plate.width, texH: plate.height,
-    focus: [0.5, 0.2], gain: 2.0, bias: 0, base: reduce ? -0.7 : 0.15, fadeBottom: 0.62, cell: 2,
+    focus: [0.5, 0.2], gain: 2.0, bias: 0, base: reduce ? -0.7 : 0.15, fadeBottom: 0.75, cell: 2,
     light: [0, 0, 300], lightAmt: 0.85, role: 'sky',
   });
   items.dawn = stage.add({
@@ -128,14 +129,14 @@ async function build() {
     focus: [0.5, 0.3], gain: 2.0, bias: -0.8, fadeTop: 0.3, fadeBottom: 0.3, cell: 2,
     light: [0, 0, 300], lightAmt: 0.9, role: 'sky',
   });
-  // The hero phone: the ringing alarm, developing from dots in the first second.
-  const heroPhoneEl = document.querySelector('[data-dither="hero-phone"]');
-  loadImage(heroPhoneEl.dataset.src).then(img => {
-    const it = stage.add({ el: heroPhoneEl, tex: stage.texture(img), texW: img.width, texH: img.height, focus: [0.5, 0],
-      gain: 1.15, bias: -0.07, cell: 2, radius: 30, develop: reduce ? 1 : 0, role: 'screen' });
-    if (!reduce) gsap.to(it, { develop: 1, duration: 1.3, ease: 'power1.inOut', delay: 0.5 });
-  });
+  intro();
+  requestAnimationFrame(frame);
 
+  // The hero phone: the ringing alarm, sharp from the first frame.
+  stage.add({ el: heroPhoneEl, tex: stage.texture(phoneShot), texW: phoneShot.width, texH: phoneShot.height,
+    focus: [0.5, 0], gain: 1.15, bias: -0.07, cell: 2, radius: 30, develop: 1, role: 'screen' });
+
+  const atlas = await loadImage('assets/v2/book-atlas.jpg');
   items.book = stage.add({
     el: document.querySelector('[data-dither="book"]'), tex: stage.texture(atlas, { gray: true }), gray: true,
     texW: 320, texH: 320, atlas: 8, frame: 0, focus: [0.5, 0.52], gain: 1.2, bias: -0.04, cell: 2, role: 'book',
@@ -174,8 +175,6 @@ async function build() {
   }, { rootMargin: '60% 0px' });
   screenEls.forEach(el => io.observe(el));
 
-  intro();
-  requestAnimationFrame(frame);
 }
 
 // Text into a texture, word by word at the DOM's own positions, so the

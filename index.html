@@ -31,6 +31,7 @@
 <link rel="icon" href="assets/risen-icon.png">
 <link rel="apple-touch-icon" href="assets/risen-icon.png">
 <link rel="preload" as="image" href="assets/plate-creation-of-light.png">
+<link rel="preload" as="image" href="assets/v2/01-open-your-bible.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500;600&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,500;1,7..72,400&display=swap" rel="stylesheet">
@@ -109,7 +110,7 @@ h1 { font-weight: 500; font-size: clamp(46px, 8.4vw, 112px); line-height: .98; l
 }
 
 /* The loop: it rings, you open your Bible, it stops. Pinned and scrubbed. */
-.loop { position: relative; height: 250vh; }
+.loop { position: relative; height: 220vh; }
 .loop .pin { position: sticky; top: 0; height: 100vh; height: 100svh; display: grid; place-items: center; overflow: hidden; }
 .loop .scene { position: relative; width: min(92vw, 760px); display: grid; justify-items: center; gap: 4px; padding-top: 72px; }
 .alarm { position: relative; display: inline-flex; align-items: center; gap: 12px; padding: 10px 18px 10px 12px;
@@ -174,8 +175,6 @@ h2 { font-weight: 500; font-size: clamp(36px, 5.6vw, 72px); line-height: 1; lett
 .screen p span { color: var(--quiet); }
 @media (min-width: 1000px) {
   .screens { overflow: visible; grid-auto-columns: 1fr; padding: 8px 0 0; margin: 56px -60px 0; gap: 28px; }
-  .screen:nth-child(2), .screen:nth-child(4) { margin-top: 48px; }
-  .screen:nth-child(3) { margin-top: 96px; }
 }
 
 /* Any Bible */
@@ -352,7 +351,7 @@ footer a { color: var(--quiet); }
 <section class="block" id="looks">
   <div class="wrap">
     <h2 class="reveal">Make it yours.</h2>
-    <p class="lede reveal">Every look comes in light and dark. Try one: this page uses the same colours.</p>
+    <p class="lede reveal">Every look comes in light and dark. Try one: this page uses the same colors.</p>
     <div class="looks reveal" role="group" aria-label="Looks" id="looksRow"></div>
     <p class="looks-note reveal">Premium unlocks every look, app icon and alarm sound.</p>
   </div>
@@ -375,7 +374,7 @@ footer a { color: var(--quiet); }
       </div>
       <div class="plan premium reveal">
         <h3>Risen Premium</h3>
-        <p class="p">Weekly, yearly or Lifetime. Yearly starts with a free week.</p>
+        <p class="p">Weekly, yearly or lifetime. Yearly starts with a free week.</p>
         <ul>
           <li>Unlimited verse alarms</li>
           <li>Both prayers and the devotionals</li>
@@ -417,7 +416,7 @@ footer a { color: var(--quiet); }
     <a class="badge" href="https://apps.apple.com/app/id6792408005" data-cta="footer"><img src="assets/v2/app-store-badge.svg" alt="Download on the App Store" style="height:46px"></a>
   </div>
   <div class="wrap">
-    <span>Risen</span>
+    <span>© 2026 Risen</span>
     <a href="https://satangcorgi.github.io/risen-legal/privacy.html">Privacy Policy</a>
     <a href="https://satangcorgi.github.io/risen-legal/terms.html">Terms of Use</a>
     <span>Art: Gustave Doré, The Creation of Light (1866), public domain</span>
