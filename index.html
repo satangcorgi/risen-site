@@ -95,12 +95,23 @@ h1 { font-weight: 500; font-size: clamp(46px, 8.4vw, 112px); line-height: .98; l
 .hero p.sub { margin-top: 22px; font-size: clamp(18px, 1.6vw, 21px); max-width: 33ch; color: var(--ink); }
 .hero .act { margin-top: 30px; display: flex; flex-wrap: wrap; align-items: center; gap: 14px 22px; }
 .hero .act .note { font-size: 15px; color: var(--quiet); }
-.hero h1 .w { display: inline-block; }
+.hero .copy { width: 100%; }
+.hero-phone { position: absolute; z-index: 0; width: clamp(150px, 22vw, 300px); right: max(24px, calc(50% - 536px));
+  top: 50%; transform: translateY(-46%); }
+.hero-phone .phone { box-shadow: 0 0 0 6px var(--ink), 0 40px 80px -30px rgba(13,22,36,.5); border-radius: 30px; }
+.hero-phone .phone .pic { border-radius: 30px; }
+@media (min-width: 900px) { .hero h1 { font-size: clamp(46px, 6.2vw, 92px); max-width: 10.5ch; } }
+@media (max-width: 899px) {
+  .hero-phone { right: 50%; transform: translateX(50%); top: max(68px, 8svh); width: min(30vw, 15svh, 140px); }
+  .hero .copy { padding-top: calc(max(68px, 8svh) + min(30vw, 15svh, 140px) * 2.173 + 20px); padding-bottom: 28px; }
+  .hero .act { margin-top: 22px; } .hero p.sub { margin-top: 14px; }
+  .get { opacity: 1; transform: none; pointer-events: auto; }
+}
 
 /* The loop: it rings, you open your Bible, it stops. Pinned and scrubbed. */
 .loop { position: relative; height: 250vh; }
 .loop .pin { position: sticky; top: 0; height: 100vh; height: 100svh; display: grid; place-items: center; overflow: hidden; }
-.loop .scene { position: relative; width: min(92vw, 760px); display: grid; justify-items: center; gap: 4px; padding-top: 40px; }
+.loop .scene { position: relative; width: min(92vw, 760px); display: grid; justify-items: center; gap: 4px; padding-top: 72px; }
 .alarm { position: relative; display: inline-flex; align-items: center; gap: 12px; padding: 10px 18px 10px 12px;
   background: var(--surface); border-radius: 999px; box-shadow: 0 10px 30px -12px rgba(13,22,36,.25), 0 0 0 1px var(--rule);
   font-size: 15px; white-space: nowrap; z-index: 2; }
@@ -144,6 +155,7 @@ html.gl .verse blockquote .t { color: transparent; }
 
 /* Sections */
 section.block { padding: clamp(88px, 14vh, 160px) 0; }
+@media (max-width: 600px) { section.block { padding: 64px 0; } .end { min-height: 76svh; } }
 h1, h2, .say .line, .lede { text-wrap: balance; }
 h2 { font-weight: 500; font-size: clamp(36px, 5.6vw, 72px); line-height: 1; letter-spacing: -.035em; max-width: 14ch; }
 .lede { margin-top: 18px; font-size: clamp(18px, 1.5vw, 21px); color: var(--quiet); max-width: 38ch; }
@@ -244,6 +256,9 @@ footer a { color: var(--quiet); }
 <main>
 <section class="hero" id="top">
   <div class="pic" data-dither="sky"><img class="fallback" src="assets/plate-creation-of-light.png" alt=""></div>
+  <div class="hero-phone" aria-hidden="true">
+    <div class="phone"><div class="pic" data-dither="hero-phone" data-src="assets/v2/01-open-your-bible.jpg"><img class="fallback" src="assets/v2/01-open-your-bible.jpg" alt=""></div></div>
+  </div>
   <div class="wrap copy">
     <h1 id="headline">An alarm that stops when you open your Bible.</h1>
     <p class="sub">When it rings, it names a verse. Find it in your Bible, point your camera at the page, and the alarm stops.</p>
@@ -328,7 +343,7 @@ footer a { color: var(--quiet); }
         <li><b>On your phone</b><span>Photos stay on your phone. Turn on Smart reading and only the words it reads go online.</span></li>
       </ul>
     </div>
-    <div class="page-pic pic reveal" data-dither="screen" data-src="assets/v2/01-open-your-bible.jpg" data-focus="0.5,1">
+    <div class="page-pic pic reveal" data-dither="screen" data-src="assets/v2/01-open-your-bible.jpg" data-focus="0.5,0.9">
       <img class="fallback" src="assets/v2/01-open-your-bible.jpg" alt="Risen reading a printed page of Psalm 23." loading="lazy">
     </div>
   </div>
@@ -337,7 +352,7 @@ footer a { color: var(--quiet); }
 <section class="block" id="looks">
   <div class="wrap">
     <h2 class="reveal">Make it yours.</h2>
-    <p class="lede reveal">Every look has a light and a dark side. Try one: this page uses the same colours.</p>
+    <p class="lede reveal">Every look comes in light and dark. Try one: this page uses the same colours.</p>
     <div class="looks reveal" role="group" aria-label="Looks" id="looksRow"></div>
     <p class="looks-note reveal">Premium unlocks every look, app icon and alarm sound.</p>
   </div>
@@ -370,6 +385,7 @@ footer a { color: var(--quiet); }
         </ul>
       </div>
     </div>
+    <div class="reveal" style="margin-top:36px"><a class="badge" href="https://apps.apple.com/app/id6792408005" data-cta="plans"><img src="assets/v2/app-store-badge.svg" alt="Download on the App Store"></a></div>
   </div>
 </section>
 
@@ -385,13 +401,13 @@ footer a { color: var(--quiet); }
 <section class="block" id="support">
   <div class="wrap">
     <h2>Questions</h2>
-    <p class="lede">Email us: <a href="mailto:satangscorgi@gmail.com">satangscorgi@gmail.com</a></p>
     <details><summary>What if my Bible isn't with me?</summary><p>After a little while, Risen offers a photo instead: a screenshot of the verse from a Bible app or website works. If that isn't possible either, you can type the verse. There's no snooze.</p></details>
     <details><summary>What does the alarm need?</summary><p>Permission to set alarms, so it rings in silent mode and Focus. Notifications are optional; with them on, Risen keeps reminding you if you leave before finding the verse.</p></details>
     <details><summary>Does Risen upload my photos?</summary><p>No. Risen reads the page on your phone. If you allow online help, it sends only the words it read, never the photo, when your phone can't match a page. A small picture of your page stays on your phone for your Book, and you can turn that off.</p></details>
     <details><summary>Which Bibles work?</summary><p>Any printed Bible in any translation, a Bible app or a website. Risen shows the verse in the Berean Standard Bible, World English Bible or King James Version, all public domain.</p></details>
     <details><summary>How do I cancel or restore Premium?</summary><p>Cancel a subscription in your iPhone's Settings, under your Apple Account. Restore Premium from the Premium page or Settings in Risen. Lifetime is a one-time purchase and never renews.</p></details>
     <details><summary>What happens if Premium ends?</summary><p>Nothing is deleted. Your first alarm keeps its verse, other alarms still ring as plain alarms, and every verse you read stays in your Book.</p></details>
+    <p class="lede" style="margin-top:28px">Something else? Email <a href="mailto:satangscorgi@gmail.com">satangscorgi@gmail.com</a></p>
   </div>
 </section>
 </main>

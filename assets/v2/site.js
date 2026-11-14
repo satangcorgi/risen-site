@@ -82,7 +82,7 @@ for (const name of Object.keys(LOOKS)) {
 // ---------------------------------------------------------------- the store, always near
 const getPill = document.getElementById('get');
 const topBar = document.querySelector('header.top');
-const barState = () => topBar.classList.toggle('solid', scrollY > innerHeight * 0.6);
+const barState = () => topBar.classList.toggle('solid', scrollY > 24);
 addEventListener('scroll', barState, { passive: true }); barState();
 const heroAct = document.querySelector('.hero .act');
 new IntersectionObserver(([e]) => getPill.classList.toggle('on', !e.isIntersecting), { threshold: 0 }).observe(heroAct);
@@ -120,7 +120,7 @@ async function build() {
   // the page opens fully dotted and the light comes through.
   items.sky = stage.add({
     el: document.querySelector('[data-dither="sky"]'), tex: plateTex, texW: plate.width, texH: plate.height,
-    focus: [0.5, 0.2], gain: 2.0, bias: 0, base: reduce ? -0.7 : 1.2, fadeBottom: 0.62, cell: 2,
+    focus: [0.5, 0.2], gain: 2.0, bias: 0, base: reduce ? -0.7 : 0.15, fadeBottom: 0.62, cell: 2,
     light: [0, 0, 300], lightAmt: 0.85, role: 'sky',
   });
   items.dawn = stage.add({
@@ -128,6 +128,14 @@ async function build() {
     focus: [0.5, 0.3], gain: 2.0, bias: -0.8, fadeTop: 0.3, fadeBottom: 0.3, cell: 2,
     light: [0, 0, 300], lightAmt: 0.9, role: 'sky',
   });
+  // The hero phone: the ringing alarm, developing from dots in the first second.
+  const heroPhoneEl = document.querySelector('[data-dither="hero-phone"]');
+  loadImage(heroPhoneEl.dataset.src).then(img => {
+    const it = stage.add({ el: heroPhoneEl, tex: stage.texture(img), texW: img.width, texH: img.height, focus: [0.5, 0],
+      gain: 1.15, bias: -0.07, cell: 2, radius: 30, develop: reduce ? 1 : 0, role: 'screen' });
+    if (!reduce) gsap.to(it, { develop: 1, duration: 1.3, ease: 'power1.inOut', delay: 0.5 });
+  });
+
   items.book = stage.add({
     el: document.querySelector('[data-dither="book"]'), tex: stage.texture(atlas, { gray: true }), gray: true,
     texW: 320, texH: 320, atlas: 8, frame: 0, focus: [0.5, 0.52], gain: 1.2, bias: -0.04, cell: 2, role: 'book',
@@ -152,12 +160,14 @@ async function build() {
         const it = stage.add({ el, tex: stage.texture(img), texW: img.width, texH: img.height, focus,
           gain: 1.15, bias: -0.07, cell: 2, radius, develop: reduce ? 1 : 0, role: 'screen' });
         if (!reduce) {
+          const row = el.closest('.screens') || el;
           const watch = new IntersectionObserver(([v]) => {
-            if (v.intersectionRatio < 0.55) return;
+            if (!v.isIntersecting) return;
             watch.disconnect();
-            gsap.to(it, { develop: 1, duration: 1.5, ease: 'power1.inOut', delay: 0.15 });
-          }, { threshold: [0.55] });
-          watch.observe(el);
+            const i = [...document.querySelectorAll('[data-dither="screen"]')].indexOf(el);
+            gsap.to(it, { develop: 1, duration: 1.4, ease: 'power1.inOut', delay: 0.2 + Math.max(0, i) * 0.12 });
+          }, { threshold: 0.35 });
+          watch.observe(row);
         }
       });
     }
@@ -251,7 +261,7 @@ function intro() {
   if (reduce) return;
   gsap.set(h1, { opacity: 0.001, y: 10 });
   gsap.set(rest, { opacity: 0, y: 10 });
-  gsap.to(items.sky, { base: -0.7, duration: 1.7, ease: 'power3.out' });
+  gsap.to(items.sky, { base: -0.7, duration: 1.4, ease: 'power3.out' });
   gsap.to(h1, { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out' });
   gsap.to(rest, { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out', delay: 0.15, stagger: 0.06 });
 }
@@ -259,6 +269,7 @@ function intro() {
 // ---------------------------------------------------------------- the loop scene
 const lines = [...document.querySelectorAll('.say .line')];
 const verseBox = document.getElementById('verse');
+const endCopy = document.querySelector('.end .copy');
 const verseText = verseBox.querySelector('.t');
 const alarm = document.getElementById('alarm');
 const scan = document.getElementById('scan');
@@ -375,7 +386,12 @@ function frame(now) {
     items.sky.bias = items.sky.base - (reduce ? 0 : 1.1 * out * out);
   }
   for (const it of stage.items) {
-    if (it.role === 'sky') {
+    if (it.role === 'sky' && it === items.dawn) {
+      it.ground = ink.ground; it.dot = mix(ink.dots, ink.tint, 0.18);
+      const c = endCopy.getBoundingClientRect();
+      it.light = [c.left + c.width / 2, c.top + c.height / 2, Math.max(c.width, c.height) * 0.62];
+      it.lightAmt = 1;
+    } else if (it.role === 'sky') {
       it.ground = ink.ground; it.dot = mix(ink.dots, ink.tint, 0.18);
       it.light = reduce ? null : [pointer.x, pointer.y, radius];
     } else if (it.role === 'book') {
